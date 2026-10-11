@@ -131,9 +131,9 @@ button[aria-pressed="true"] { background: var(--accent); color: var(--accent-fg)
       <summary>Konsep klasik modern: putih, aksen hitam, sentuhan emas</summary>
       <ul>
         <li><b>Depan:</b> teras gerbang lengkung, pintu ganda hitam, jendela kisi hitam, list plank bertingkat, atap perisai abu gelap</li>
-        <li><b>Kiri:</b> carport beratap dak dengan dinding lengkung dan lampu dinding</li>
+        <li><b>Kiri:</b> carport 2 mobil beratap dak dengan dinding lengkung dan lampu dinding</li>
         <li><b>Belakang kiri:</b> taman dengan dinding batu alam berlampu, kolam koi, dan dek kayu, terlihat dari pintu kaca dapur</li>
-        <li><b>Interior:</b> 3 kamar, ruang tamu dengan sudut kerja, ruang keluarga &amp; makan, dapur, kamar mandi. Tekan Interior untuk melihat, atau tombol orang untuk jalan-jalan di dalam rumah</li>
+        <li><b>Interior:</b> 3 kamar, ruang tamu, ruang keluarga &amp; makan, dapur, kamar mandi. Tekan Interior untuk melihat, atau tombol orang untuk jalan-jalan di dalam rumah</li>
       </ul>
     </details>
     <div class="chip" id="note-before" hidden><strong>Kondisi sekarang, ukuran masih perkiraan.</strong> Diambil dari video: atap pelana genteng, teras berpilar di kanan depan, bangunan bata di belakang, pagar ungu.</div>
@@ -155,6 +155,8 @@ button[aria-pressed="true"] { background: var(--accent); color: var(--accent-fg)
   renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
   renderer.shadowMap.enabled = true;
   renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+  renderer.shadowMap.autoUpdate = false;
+  renderer.shadowMap.needsUpdate = true;
   renderer.outputEncoding = THREE.sRGBEncoding;
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
   renderer.toneMappingExposure = 1.0;
@@ -422,33 +424,33 @@ button[aria-pressed="true"] { background: var(--accent); color: var(--accent-fg)
 
     // Grounds
     box(16, 0.1, 21.4, C.paving, -2.4, -0.05, 0.1);
-    box(6.75, 0.04, 6.6, C.grass, -1.475, 0.02, 7.05);
+    box(5.3, 0.04, 6.6, C.grass, -0.75, 0.02, 7.05);
     box(1.25, 0.04, 3.2, C.grass, 4.68, 0.02, 8.8);
-    box(4.8, 0.04, 3.1, C.paveDark, -7.4, 0.02, 9.05);
+    box(6.3, 0.04, 3.1, C.paveDark, -6.65, 0.02, 9.05);
     box(2.1, 0.05, 3.4, C.pebble, 3.0, 0.025, 8.9);
     for (var sz = 7.5; sz <= 10.3; sz += 0.68) box(1.3, 0.06, 0.48, C.marble, 3.0, 0.05, sz);
 
     // Main house shell
-    box(10.1, 0.45, 7.1, C.stoneBase, 0, 0.225, -0.5);
-    wallHoles('z', 2.9, -5, 5, 0, 3.6, 0.2, [[-3.55, -2.45, 0.95, 3.05], [2.15, 3.85, 0.45, 3.05]], C.white);
-    box(4.4, 3.6, 0.2, C.white, -2.8, 1.8, -3.9);
+    box(8.6, 0.45, 7.1, C.stoneBase, 0.75, 0.225, -0.5);
+    wallHoles('z', 2.9, -3.5, 5, 0, 3.6, 0.2, [[-2.3, -1.2, 0.95, 3.05], [2.15, 3.85, 0.45, 3.05]], C.white);
+    box(2.9, 3.6, 0.2, C.white, -2.05, 1.8, -3.9);
     box(4.4, 3.6, 0.2, C.white, 2.8, 1.8, -3.9);
     box(1.2, 1.1, 0.2, C.white, 0, 3.05, -3.9);
-    wallHoles('x', -4.9, -4, 3, 0, 3.6, 0.2, [[-1.7, -0.7, 0.45, 2.75], [0.9, 2.1, 1.0, 2.8]], C.white);
+    wallHoles('x', -3.4, -4, 3, 0, 3.6, 0.2, [[-1.7, -0.7, 0.45, 2.75], [0.9, 2.1, 1.0, 2.8]], C.white);
     box(0.2, 3.6, 7, C.white, 4.9, 1.8, -0.5);
-    box(10, 0.1, 7, 0xE4E1DB, 0, 0.45, -0.5);
-    ring(10.4, 7.4, 0.25, 3.72, 0.45, C.cream, 0, -0.5);
-    ring(10.7, 7.7, 0.18, 3.93, 0.5, C.white, 0, -0.5);
+    box(8.5, 0.1, 7, 0xE4E1DB, 0.75, 0.45, -0.5);
+    ring(8.9, 7.4, 0.25, 3.72, 0.45, C.cream, 0.75, -0.5);
+    ring(9.2, 7.7, 0.18, 3.93, 0.5, C.white, 0.75, -0.5);
 
     // Front-left: grid window with pilasters and header, planter below
-    [-3.0].forEach(function (x) {
+    [-1.75].forEach(function (x) {
       opening('front', 3.0, x, 0.95, 1.1, 2.1, { frame: C.black, glass: glassAfter, fw: 0.14, cols: 2, rows: 4 });
       [-1, 1].forEach(function (s) { box(0.2, 2.6, 0.12, C.cream, x + s * 0.8, 1.95, 3.06); });
       box(1.95, 0.22, 0.22, C.cream, x, 3.25, 3.1);
       box(1.5, 0.08, 0.2, C.cream, x, 0.88, 3.1);
     });
-    box(5.8, 0.55, 0.7, C.darkStone, -2.1, 0.275, 3.36);
-    for (var sx = -4.7; sx <= 0.5; sx += 0.45) ball(0.28, C.leaf, sx, 0.72, 3.36, 1, 0.8, 1);
+    box(4.3, 0.55, 0.7, C.darkStone, -1.35, 0.275, 3.36);
+    for (var sx = -3.2; sx <= 0.5; sx += 0.45) ball(0.28, C.leaf, sx, 0.72, 3.36, 1, 0.8, 1);
 
     // Entry porch with arch frames
     box(4.0, 0.45, 3.4, C.marble, 3, 0.225, 4.7);
@@ -469,17 +471,17 @@ button[aria-pressed="true"] { background: var(--accent); color: var(--accent-fg)
     box(2.3, 0.18, 0.16, C.cream, 3, 3.25, 3.1);
 
     // Left side door to carport
-    opening('left', -5.0, -1.2, 0.45, 1.0, 2.3, { frame: C.black, glass: 'none' });
-    leaf(-4.85, -1.7, 1.0, 2.28, 0.46, -Math.PI / 2 + 1.2, C.black, C.gold);
-    opening('left', -5.0, 1.5, 1.0, 1.2, 1.8, { frame: C.black, glass: glassAfter, fw: 0.14, cols: 2, rows: 3 });
+    opening('left', -3.5, -1.2, 0.45, 1.0, 2.3, { frame: C.black, glass: 'none' });
+    leaf(-3.35, -1.7, 1.0, 2.28, 0.46, -Math.PI / 2 + 1.2, C.black, C.gold);
+    opening('left', -3.5, 1.5, 1.0, 1.2, 1.8, { frame: C.black, glass: glassAfter, fw: 0.14, cols: 2, rows: 3 });
 
     // Main hip roof
     G = roofsAfter;
-    hip(11, 8, 4.02, 2.3, C.roof).position.set(0, 0, -0.5);
+    hip(9.5, 8, 4.02, 2.3, C.roof).position.set(0.75, 0, -0.5);
     G = after;
 
     // Carport (left)
-    box(4.8, 0.08, 11.2, 0xDEDBD5, -7.4, 0.04, 2.0);
+    box(6.3, 0.08, 11.2, 0xDEDBD5, -6.65, 0.04, 2.0);
     box(0.2, 2.4, 11.2, C.white, -9.9, 1.2, 2.0);
     box(0.3, 0.12, 11.2, C.cream, -9.85, 2.46, 2.0);
     [6.4, 4.2, 2.0, -0.2, -2.4].forEach(function (z) {
@@ -487,14 +489,14 @@ button[aria-pressed="true"] { background: var(--accent); color: var(--accent-fg)
       box(0.12, 0.3, 0.1, C.gold, -9.74, 1.45, z);
       box(0.06, 0.12, 0.08, lampMat, -9.7, 1.6, z);
     });
-    box(4.4, 0.45, 0.18, C.white, -7.4, 0.25, -3.5);
-    [[-9.6, 7.3], [-5.2, 7.3], [-9.6, 2.0], [-9.6, -3.3]].forEach(function (p) { box(0.4, 3.4, 0.4, C.white, p[0], 1.7, p[1]); });
-    box(4.9, 0.3, 11.2, C.white, -7.4, 3.55, 2.0);
-    box(5.2, 0.22, 11.5, C.cream, -7.4, 3.8, 2.0);
-    box(5.4, 0.15, 11.7, C.white, -7.4, 3.97, 2.0);
-    box(2.2, 0.12, 8.6, 0xEDEBE6, -7.4, 3.34, 2.4);
-    for (var dz = -2.6; dz <= 7; dz += 1.6) { cyl(0.07, 0.07, 0.02, lampMat, -8.9, 3.39, dz, 12); cyl(0.07, 0.07, 0.02, lampMat, -5.9, 3.39, dz, 12); }
-    box(4.8, 3.4, 0.2, C.white, -7.4, 1.7, -3.65);
+    box(5.9, 0.45, 0.18, C.white, -6.65, 0.25, -3.5);
+    [[-9.6, 7.3], [-3.7, 7.3], [-9.6, 2.0], [-9.6, -3.3]].forEach(function (p) { box(0.4, 3.4, 0.4, C.white, p[0], 1.7, p[1]); });
+    box(6.4, 0.3, 11.2, C.white, -6.675, 3.55, 2.0);
+    box(6.7, 0.22, 11.5, C.cream, -6.75, 3.8, 2.0);
+    box(6.9, 0.15, 11.7, C.white, -6.75, 3.97, 2.0);
+    box(3.6, 0.12, 8.6, 0xEDEBE6, -6.65, 3.34, 2.4);
+    for (var dz = -2.6; dz <= 7; dz += 1.6) { cyl(0.07, 0.07, 0.02, lampMat, -8.9, 3.39, dz, 12); cyl(0.07, 0.07, 0.02, lampMat, -6.65, 3.39, dz, 12); cyl(0.07, 0.07, 0.02, lampMat, -4.4, 3.39, dz, 12); }
+    box(6.3, 3.4, 0.2, C.white, -6.65, 1.7, -3.65);
     opening('front', -3.55, -7.4, 0.1, 2.4, 2.6, { frame: C.cream, door: C.creamDoor, double: true, handle: C.gold, fw: 0.24 });
     box(3.1, 0.2, 0.18, C.cream, -7.4, 2.98, -3.5);
 
@@ -535,52 +537,60 @@ button[aria-pressed="true"] { background: var(--accent); color: var(--accent-fg)
     G = after;
     // Right boundary (neighbour side)
     box(0.2, 2.6, 13.3, C.white, 5.4, 1.3, -3.65);
-    // Front fence: stone-based low wall, black bar railing with gold rail, crowned pillars with lanterns
+    // Front fence (about 2.3 m): stone plinth, solid white wall to 1.1 m, black bars with gold rail above,
+    // tall crowned pillars with lanterns, full-height gates with a privacy panel
     function bars(len, h, y0, parent, gap) {
-      for (var b = -len / 2 + 0.06; b <= len / 2 - 0.04; b += (gap || 0.12)) box(0.022, h, 0.022, C.black, b, y0 + h / 2, 0, parent);
-      box(len, 0.05, 0.05, C.black, 0, y0 + h, 0, parent);
-      box(len, 0.035, 0.04, C.gold, 0, y0 + h - 0.16, 0, parent);
-      box(len, 0.04, 0.04, C.black, 0, y0 + 0.02, 0, parent);
+      for (var b = -len / 2 + 0.06; b <= len / 2 - 0.04; b += (gap || 0.11)) {
+        box(0.025, h, 0.025, C.black, b, y0 + h / 2, 0, parent);
+        box(0.03, 0.06, 0.03, C.gold, b, y0 + h + 0.03, 0, parent).castShadow = false;
+      }
+      box(len, 0.06, 0.06, C.black, 0, y0 + h - 0.03, 0, parent);
+      box(len, 0.04, 0.045, C.gold, 0, y0 + h - 0.22, 0, parent);
+      box(len, 0.05, 0.05, C.black, 0, y0 + 0.025, 0, parent);
     }
     function fenceRun(axis, a0, a1, at) {
       var len = a1 - a0, g = new THREE.Group();
       g.position.set(axis === 'z' ? (a0 + a1) / 2 : at, 0, axis === 'z' ? at : (a0 + a1) / 2);
       if (axis === 'x') g.rotation.y = Math.PI / 2;
-      box(len, 0.25, 0.32, C.stoneBase, 0, 0.125, 0, g);
-      box(len, 0.4, 0.26, C.white, 0, 0.45, 0, g);
-      box(len + 0.02, 0.06, 0.34, C.cream, 0, 0.68, 0, g);
-      bars(len, 1.15, 0.71, g);
+      box(len, 0.4, 0.34, C.stone, 0, 0.2, 0, g);
+      box(len, 0.7, 0.28, C.white, 0, 0.75, 0, g);
+      box(len + 0.02, 0.07, 0.36, C.cream, 0, 1.135, 0, g);
+      bars(len, 1.15, 1.17, g);
       after.add(g);
     }
     function pillar(x, z) {
-      box(0.6, 0.45, 0.6, C.stoneBase, x, 0.225, z);
-      box(0.5, 1.75, 0.5, C.white, x, 1.32, z);
-      box(0.3, 1.0, 0.03, C.cream, x, 1.3, z + 0.26); box(0.3, 1.0, 0.03, C.cream, x, 1.3, z - 0.26);
-      box(0.62, 0.08, 0.62, C.cream, x, 2.23, z); box(0.54, 0.07, 0.54, C.white, x, 2.3, z);
-      box(0.22, 0.04, 0.22, C.black, x, 2.36, z);
-      box(0.15, 0.24, 0.15, lampMat, x, 2.5, z);
-      [[-1, -1], [1, -1], [-1, 1], [1, 1]].forEach(function (c) { box(0.02, 0.26, 0.02, C.black, x + c[0] * 0.085, 2.5, z + c[1] * 0.085); });
-      box(0.24, 0.04, 0.24, C.black, x, 2.64, z); box(0.1, 0.06, 0.1, C.gold, x, 2.69, z);
+      box(0.66, 0.6, 0.66, C.stone, x, 0.3, z);
+      box(0.56, 2.0, 0.56, C.white, x, 1.6, z);
+      [1, -1].forEach(function (s) { box(0.34, 1.2, 0.03, C.cream, x, 1.55, z + s * 0.29); box(0.03, 1.2, 0.34, C.cream, x + s * 0.29, 1.55, z); });
+      box(0.68, 0.1, 0.68, C.cream, x, 2.65, z); box(0.6, 0.08, 0.6, C.white, x, 2.74, z);
+      box(0.24, 0.05, 0.24, C.black, x, 2.8, z);
+      box(0.16, 0.28, 0.16, lampMat, x, 2.97, z);
+      [[-1, -1], [1, -1], [-1, 1], [1, 1]].forEach(function (c) { box(0.025, 0.3, 0.025, C.black, x + c[0] * 0.09, 2.97, z + c[1] * 0.09); });
+      box(0.26, 0.05, 0.26, C.black, x, 3.13, z); box(0.1, 0.08, 0.1, C.gold, x, 3.19, z);
     }
-    [-9.95, -5.0, 2.0, 4.0, 5.4].forEach(function (x) { pillar(x, 10.6); });
+    [-9.95, -3.45, 2.0, 4.0, 5.4].forEach(function (x) { pillar(x, 10.6); });
     pillar(-9.95, 7.6); pillar(5.4, 6.6);
-    fenceRun('z', -4.75, 1.75, 10.6);
-    fenceRun('z', 4.25, 5.15, 10.6);
-    fenceRun('x', 7.85, 10.35, -9.95);
-    fenceRun('x', 6.85, 10.35, 5.4);
-    // Carport gate (closed) and pedestrian gate (open)
-    var cg = new THREE.Group(); cg.position.set(-7.45, 0.06, 10.6);
-    box(4.4, 0.06, 0.06, C.black, 0, 0.03, 0, cg);
-    bars(4.4, 1.85, 0.0, cg, 0.11);
-    box(0.06, 1.9, 0.06, C.black, -2.18, 0.95, 0, cg); box(0.06, 1.9, 0.06, C.black, 2.18, 0.95, 0, cg); box(0.06, 1.9, 0.06, C.black, 0, 0.95, 0, cg);
-    after.add(cg);
-    var pg = new THREE.Group(); pg.position.set(2.25, 0.06, 10.6); pg.rotation.y = 1.2;
-    var inner = new THREE.Group(); inner.position.x = 0.75; pg.add(inner);
-    bars(1.5, 1.75, 0.0, inner, 0.11);
-    box(0.05, 1.8, 0.05, C.black, -0.73, 0.9, 0, inner); box(0.05, 1.8, 0.05, C.black, 0.73, 0.9, 0, inner);
-    box(0.04, 0.3, 0.06, C.gold, 0.62, 1.0, 0.05, inner);
+    fenceRun('z', -3.17, 1.72, 10.6);
+    fenceRun('z', 4.28, 5.12, 10.6);
+    fenceRun('x', 7.88, 10.32, -9.95);
+    fenceRun('x', 6.88, 10.32, 5.4);
+    function gateLeaf(len, parent) {
+      box(len, 1.0, 0.05, C.black, 0, 0.55, 0, parent);
+      for (var gx = -len / 2 + 0.15; gx < len / 2; gx += 0.3) box(0.012, 0.85, 0.06, C.gold, gx, 0.55, 0.01, parent).castShadow = false;
+      bars(len, 1.2, 1.05, parent, 0.1);
+      box(0.07, 2.28, 0.07, C.black, -len / 2 + 0.035, 1.14, 0, parent); box(0.07, 2.28, 0.07, C.black, len / 2 - 0.035, 1.14, 0, parent);
+    }
+    // Carport gate: two closed leaves
+    [-8.2, -5.2].forEach(function (cx) { var cg = new THREE.Group(); cg.position.set(cx, 0.04, 10.6); gateLeaf(2.95, cg); after.add(cg); });
+    // Pedestrian gate, swung open
+    var pg = new THREE.Group(); pg.position.set(2.28, 0.04, 10.6); pg.rotation.y = 1.2;
+    var inner = new THREE.Group(); inner.position.x = 0.72; pg.add(inner);
+    gateLeaf(1.44, inner);
+    box(0.04, 0.3, 0.06, C.gold, 0.6, 1.1, 0.05, inner);
     after.add(pg);
-    box(0.32, 0.14, 0.02, C.gold, 2.0, 1.75, 10.87);
+    // House number + mailbox on the gate pillar
+    box(0.36, 0.16, 0.02, C.black, 2.0, 2.1, 10.9); box(0.28, 0.07, 0.025, C.gold, 2.0, 2.1, 10.91);
+    box(0.34, 0.26, 0.12, C.black, 2.0, 1.5, 10.94); box(0.24, 0.02, 0.02, C.gold, 2.0, 1.58, 11.0);
     // ---------- Front garden ----------
     var seed = 7; function sr() { seed = (seed * 16807) % 2147483647; return (seed - 1) / 2147483646; }
     function shrub(x, z, r, c, flower) {
@@ -594,7 +604,7 @@ button[aria-pressed="true"] { background: var(--accent); color: var(--accent-fg)
       }
     }
     // Boxwood hedge along the inside of the fence
-    for (var hx = -4.6; hx <= 1.4; hx += 0.42) shrub(hx, 10.15, 0.3, 0x3F6B33);
+    for (var hx = -3.1; hx <= 1.4; hx += 0.42) shrub(hx, 10.15, 0.3, 0x3F6B33);
     for (var hx2 = 4.4; hx2 <= 5.1; hx2 += 0.42) shrub(hx2, 10.15, 0.28, 0x3F6B33);
     // Frangipani (kamboja) tree with white blossoms
     (function (x, z) {
@@ -607,9 +617,9 @@ button[aria-pressed="true"] { background: var(--accent); color: var(--accent-fg)
         for (var fl = 0; fl < 7; fl++) ball(0.06, 0xFBF6E6, x + b[0] + (sr() - 0.5) * 0.6, 1.52 + b[1] + sr() * 0.12, z + b[2] + (sr() - 0.5) * 0.6).castShadow = false;
         ball(0.05, 0xF2C94C, x + b[0], 1.62 + b[1], z + b[2]).castShadow = false;
       });
-    })(-3.4, 8.3);
+    })(-2.3, 8.4);
     // Flowering shrubs, ornamental grass, boulders
-    shrub(-4.4, 4.5, 0.45, 0x4A7B37, 0xD9467A); shrub(0.9, 4.4, 0.4, 0x4A7B37, 0xF0C33C);
+    shrub(-3.0, 4.6, 0.45, 0x4A7B37, 0xD9467A); shrub(0.9, 4.4, 0.4, 0x4A7B37, 0xF0C33C);
     shrub(1.2, 7.4, 0.35, 0x5A8A3E, 0xE86A33); shrub(-1.2, 9.6, 0.35, 0x4A7B37, 0xD9467A);
     shrub(4.7, 7.6, 0.32, 0x4A7B37, 0xF4F1EA);
     [[-0.4, 7.4], [-2.0, 5.2], [1.4, 9.0]].forEach(function (p) {
@@ -621,9 +631,9 @@ button[aria-pressed="true"] { background: var(--accent); color: var(--accent-fg)
     ball(0.38, 0x8D8A84, -1.0, 0.12, 6.3, 1.4, 0.55, 1); ball(0.26, 0x9A968F, -0.55, 0.09, 6.6, 1.2, 0.55, 1);
     ball(0.3, 0x8D8A84, -2.6, 0.1, 9.4, 1.3, 0.55, 1);
     // Steel lawn edging + low garden bollard lights
-    box(6.75, 0.08, 0.04, C.black, -1.475, 0.04, 3.74);
+    box(5.3, 0.08, 0.04, C.black, -0.75, 0.04, 3.74);
     box(0.04, 0.08, 6.6, C.black, 1.9, 0.04, 7.05);
-    [[1.75, 7.6], [1.75, 9.6], [4.2, 7.6], [4.2, 9.6], [-4.7, 6.0]].forEach(function (p) {
+    [[1.75, 7.6], [1.75, 9.6], [4.2, 7.6], [4.2, 9.6], [-3.2, 6.2]].forEach(function (p) {
       box(0.1, 0.55, 0.1, C.black, p[0], 0.28, p[1]); box(0.08, 0.06, 0.08, lampMat, p[0], 0.5, p[1]);
     });
 
@@ -644,8 +654,8 @@ button[aria-pressed="true"] { background: var(--accent); color: var(--accent-fg)
       }
     });
     // Wall sconces beside the window, gutter + downpipe
-    [-4.3, -1.7].forEach(function (x) { box(0.1, 0.3, 0.1, C.black, x, 2.4, 3.08); box(0.06, 0.12, 0.04, lampMat, x, 2.55, 3.13); box(0.06, 0.12, 0.04, lampMat, x, 2.25, 3.13); });
-    box(5.55, 0.14, 0.14, 0xE9E7E3, -1.825, 4.0, 3.5);
+    [-2.95, -0.55].forEach(function (x) { box(0.1, 0.3, 0.1, C.black, x, 2.4, 3.08); box(0.06, 0.12, 0.04, lampMat, x, 2.55, 3.13); box(0.06, 0.12, 0.04, lampMat, x, 2.25, 3.13); });
+    box(4.45, 0.14, 0.14, 0xE9E7E3, -1.275, 4.0, 3.5);
     cyl(0.05, 0.05, 3.9, 0xE9E7E3, 0.9, 2.05, 3.45, 10);
     // House number plate on the facade
     box(0.5, 0.18, 0.02, C.black, 0.4, 2.6, 3.02); box(0.4, 0.08, 0.025, C.gold, 0.4, 2.6, 3.03);
@@ -656,7 +666,7 @@ button[aria-pressed="true"] { background: var(--accent); color: var(--accent-fg)
       var im = new THREE.InstancedMesh(geo, new THREE.MeshStandardMaterial({ roughness: 1 }), n);
       var d = new THREE.Object3D(), col = new THREE.Color();
       for (var i = 0; i < n; i++) {
-        d.position.set(-4.82 + Math.random() * 6.68, 0.03, 3.8 + Math.random() * 6.15);
+        d.position.set(-3.35 + Math.random() * 5.2, 0.03, 3.8 + Math.random() * 6.15);
         d.rotation.set((Math.random() - 0.5) * 0.5, Math.random() * 6.28, (Math.random() - 0.5) * 0.5);
         var s = 0.6 + Math.random() * 0.8; d.scale.set(s, s, s); d.updateMatrix();
         im.setMatrixAt(i, d.matrix);
@@ -668,38 +678,35 @@ button[aria-pressed="true"] { background: var(--accent); color: var(--accent-fg)
     // ---------- Interior ----------
     var F = { linen: 0xEEEAE2, fabric: 0xB7AC9C, fabric2: 0x6E7A6A, woodF: 0x9C6B43, blackF: 0x222428, rug: 0xCFC4AE, oak: 0xC79A68, tile: 0xCBD2D4 };
     // Floors: oak in bedrooms, light tile in wet rooms
-    box(3.9, 0.02, 2.95, F.oak, -3.0, 0.51, 1.5);
-    box(1.9, 0.02, 2.95, F.oak, 0, 0.51, 1.5);
-    box(3.9, 0.02, 2.75, F.oak, -3.0, 0.51, -2.6);
+    box(3.4, 0.02, 2.95, F.oak, -1.75, 0.51, 1.5);
+    box(2.4, 0.02, 2.75, F.oak, -2.25, 0.51, -2.6);
     box(2.9, 0.02, 2.9, F.tile, 2.5, 0.31, -5.5);
     box(2.9, 0.02, 2.9, F.oak, 2.5, 0.31, -8.5);
     // Partitions, main house (floor 0.5 → 3.6)
-    partition('z', 0, -5, 1, 0.5, 3.6, [[-4.3, -3.5], [-0.9, -0.1]], C.white);
-    partition('x', -1, 0, 3, 0.5, 3.6, [], C.white);
-    partition('z', -1.2, -5, -1, 0.5, 3.6, [[-3.3, -2.5]], C.white);
+    partition('z', 0, -3.5, 0, 0.5, 3.6, [[-3.2, -2.4]], C.white);
+    partition('x', 0, 0, 3, 0.5, 3.6, [], C.white);
+    partition('z', -1.2, -3.5, -1, 0.5, 3.6, [[-3.2, -2.4]], C.white);
     partition('x', -1, -4, -1.2, 0.5, 3.6, [], C.white);
     // Partitions, rear annex (floor 0.3 → 3.3)
     partition('x', 1, -10, -4, 0.3, 3.3, [[-8.8, -8.0], [-5.6, -4.8]], C.white);
     partition('z', -7, 1, 4, 0.3, 3.3, [], C.white);
 
     // Master bedroom
-    box(1.8, 0.45, 2.0, F.linen, -3.5, 0.75, 1.15);
-    box(1.9, 1.1, 0.1, F.woodF, -3.5, 1.05, 0.12);
-    box(0.7, 0.14, 0.4, 0xFFFFFF, -3.95, 1.05, 0.4); box(0.7, 0.14, 0.4, 0xFFFFFF, -3.05, 1.05, 0.4);
-    box(1.8, 0.06, 0.8, F.fabric2, -3.5, 1.0, 1.75);
-    box(0.5, 2.2, 1.5, F.woodF, -4.62, 1.6, 2.1);
-    box(0.4, 0.5, 0.4, F.woodF, -2.35 - 0.3, 0.75, 0.35);
+    box(1.8, 0.45, 2.0, F.linen, -1.75, 0.75, 1.15);
+    box(1.9, 1.1, 0.1, F.woodF, -1.75, 1.05, 0.12);
+    box(0.7, 0.14, 0.4, 0xFFFFFF, -2.2, 1.05, 0.4); box(0.7, 0.14, 0.4, 0xFFFFFF, -1.3, 1.05, 0.4);
+    box(1.8, 0.06, 0.8, F.fabric2, -1.75, 1.0, 1.75);
+    box(0.55, 2.2, 1.2, F.woodF, -0.35, 1.6, 2.2);
+    box(0.4, 0.5, 0.4, F.woodF, -0.45, 0.75, 0.35);
     // Bedroom 2
     box(2.0, 0.45, 1.2, F.linen, 2.85, 0.55, -9.0);
     box(0.08, 1.0, 1.25, F.woodF, 3.84, 0.8, -9.0);
     box(0.6, 0.06, 1.2, F.fabric, 2.2, 0.8, -9.0);
     box(1.4, 2.0, 0.5, F.woodF, 2.9, 1.3, -7.3);
-    box(1.2, 0.05, 0.6, F.woodF, 0.35, 1.25, 2.55); box(0.05, 0.75, 0.55, F.woodF, -0.2, 0.88, 2.55); box(0.05, 0.75, 0.55, F.woodF, 0.9, 0.88, 2.55);
-    box(0.45, 0.45, 0.45, F.blackF, 0.35, 0.73, 2.0);
     // Bedroom 3
-    box(1.6, 0.45, 2.0, F.linen, -3.2, 0.75, -2.95);
-    box(1.7, 1.0, 0.1, F.woodF, -3.2, 1.0, -3.92);
-    box(1.6, 0.06, 0.7, F.fabric2, -3.2, 1.0, -2.3);
+    box(1.4, 0.45, 2.0, F.linen, -2.65, 0.75, -2.95);
+    box(1.5, 1.0, 0.1, F.woodF, -2.65, 1.0, -3.92);
+    box(1.4, 0.06, 0.7, F.fabric2, -2.65, 1.0, -2.3);
     box(0.5, 2.2, 1.4, F.woodF, -1.35, 1.6, -2.9);
     // Living room (front right)
     box(2.2, 0.02, 2.0, F.rug, 2.8, 0.52, 1.4);
@@ -732,13 +739,13 @@ button[aria-pressed="true"] { background: var(--accent); color: var(--accent-fg)
     box(0.65, 0.85, 0.6, 0xFFFFFF, -3.45, 0.73, -4.45);
 
     // Doors standing open (so you can walk through)
-    leaf(-4.3, 0.06, 0.8, 2.08, 0.5, -1.3, F.woodF, C.gold);
-    leaf(-3.3, -1.26, 0.8, 2.08, 0.5, 1.3, F.woodF, C.gold);
+    leaf(-3.2, 0.06, 0.8, 2.08, 0.5, -1.3, F.woodF, C.gold);
+    leaf(-3.2, -1.26, 0.8, 2.08, 0.5, 1.3, F.woodF, C.gold);
     leaf(1.06, -8.8, 0.8, 2.08, 0.3, -Math.PI / 2 + 1.3, F.woodF, C.gold);
     leaf(1.06, -5.6, 0.8, 2.08, 0.3, -Math.PI / 2 + 1.3, F.woodF, C.gold);
 
     // Curtains, art, lamps
-    [-3.0].forEach(function (x) {
+    [-1.75].forEach(function (x) {
       box(0.3, 2.5, 0.06, F.linen, x - 0.75, 2.05, 2.72); box(0.3, 2.5, 0.06, F.linen, x + 0.75, 2.05, 2.72);
       box(1.9, 0.03, 0.03, C.black, x, 3.32, 2.74);
     });
@@ -749,16 +756,16 @@ button[aria-pressed="true"] { background: var(--accent); color: var(--accent-fg)
 
     // Ceilings with downlights (removed together with the roof)
     G = roofsAfter;
-    box(9.6, 0.05, 6.6, 0xF7F6F3, 0, 3.58, -0.5);
+    box(8.1, 0.05, 6.6, 0xF7F6F3, 0.75, 3.58, -0.5);
     box(7.6, 0.05, 5.6, 0xF7F6F3, 0, 3.28, -7);
     box(3.2, 0.12, 2.4, 0xF7F6F3, 2.3, 3.5, -2.2);
-    [[-3.7, 1.5], [-0.7, 1.5], [-3, -2.6], [2.2, 1.4], [3.8, 1.4], [0.6, -2.4], [3.6, -2.6], [-3, -0.6]].forEach(function (p) { cyl(0.07, 0.07, 0.02, lampMat, p[0], 3.55, p[1], 12).castShadow = false; });
+    [[-2.5, 1.5], [-1.0, 1.5], [-2.3, -2.6], [2.2, 1.4], [3.8, 1.4], [0.6, 1.4], [0.6, -2.4], [3.6, -2.6], [-2.0, -0.6]].forEach(function (p) { cyl(0.07, 0.07, 0.02, lampMat, p[0], 3.55, p[1], 12).castShadow = false; });
     [[-1.5, -7.3], [-1.5, -9], [2.5, -5.5], [2.5, -8.5]].forEach(function (p) { cyl(0.07, 0.07, 0.02, lampMat, p[0], 3.25, p[1], 12).castShadow = false; });
     G = after;
 
     // Room labels (shown with the roof off)
     var L = [
-      ['Kamar Utama', -3.6, 2.7, 1.5], ['Sudut Kerja', 0, 2.7, 1.5], ['Kamar 3', -3.0, 2.7, -2.6],
+      ['Kamar Utama', -1.75, 2.7, 1.5], ['Kamar 3', -2.25, 2.7, -2.6],
       ['Ruang Tamu', 3.0, 2.7, 1.4], ['R. Keluarga & Makan', 2.0, 2.7, -2.0], ['Dapur', -1.5, 2.6, -7.6],
       ['Kamar Mandi', 2.5, 2.6, -5.5], ['Kamar 2', 2.5, 2.6, -8.6],
       ['Taman Batu & Koi', -7.0, 2.2, -6.8], ['Carport', -7.4, 2.3, 3.0], ['Teras', 3.0, 2.4, 4.7]
@@ -771,7 +778,7 @@ button[aria-pressed="true"] { background: var(--accent); color: var(--accent-fg)
     [[3, 3.6, 5.2], [-7.4, 3.0, 4.5], [-7.4, 3.0, -1.0], [-6.5, 2.4, -8.6], [-8.0, 2.2, -6.0], [-2.3, 2.4, 4.6]].forEach(function (p) {
       var l = new THREE.PointLight(0xFFC27A, 0, 10, 2); l.position.set(p[0], p[1], p[2]); after.add(l); nightLights.push(l);
     });
-    [[-2.2, 3.2, 1.5], [-3, 3.2, -2.6], [3, 3.2, 0.2], [-1, 3.0, -7], [2.5, 3.0, -6.8]].forEach(function (p) {
+    [[-1.75, 3.2, 1.5], [-2.25, 3.2, -2.6], [3, 3.2, 0.2], [-1, 3.0, -7], [2.5, 3.0, -6.8]].forEach(function (p) {
       var l = new THREE.PointLight(0xFFE2B8, 0.5, 7, 2); l.position.set(p[0], p[1], p[2]); after.add(l); roomLights.push(l);
     });
   })();
@@ -968,6 +975,80 @@ button[aria-pressed="true"] { background: var(--accent); color: var(--accent-fg)
   });
   Object.keys(mats).forEach(function (k) { if (mats[k].color.getHex() === 0x4E8A3A || mats[k].color.getHex() === 0x6FA845 || mats[k].color.getHex() === 0x4F7A3E) mats[k].roughness = 0.6; });
 
+  /* ---------------- Neighbourhood context: neighbours, street poles, big trees ---------------- */
+  var ctx = new THREE.Group(); scene.add(ctx);
+  (function () {
+    G = ctx;
+    function tb(w, h, d, m, x, y, z) { var o = box(w, h, d, m, x, y, z); if (m.map) meterUV(o.geometry); return o; }
+    function win(x, y, z, w, h, nz) {
+      box(w + 0.12, h + 0.12, 0.06, 0x2B2622, x, y, z + nz * 0.02);
+      box(w, h, 0.04, 0x46525A, x, y, z + nz * 0.05);
+      box(0.05, h, 0.06, 0x2B2622, x, y, z + nz * 0.07);
+    }
+    // facing: +1 = front toward +z (street side for houses behind the street), -1 = toward -z
+    function neighbour(cx, cz, w, d, wall, roofMat, facing) {
+      var wm = new THREE.MeshStandardMaterial({ map: R.plasterW.map, color: wall, roughness: 0.9 });
+      wm.bumpMap = R.plasterW.map; wm.bumpScale = 0.02;
+      tb(w + 0.1, 0.35, d + 0.1, R.stoneBase, cx, 0.175, cz);
+      tb(w, 3.3, d, wm, cx, 1.65 + 0.3, cz);
+      var r = hip(w + 1.2, d + 1.2, 3.6, 2.0, 0x777777); r.position.set(cx, 0, cz);
+      if (w + 1.2 < d + 1.2) { r.rotation.y = Math.PI / 2; r.geometry.dispose(); ctx.remove(r); r = hip(d + 1.2, w + 1.2, 3.6, 2.0, 0x777777); r.position.set(cx, 0, cz); r.rotation.y = Math.PI / 2; }
+      roofUV(r.geometry); r.material = roofMat;
+      var fz = cz + facing * (d / 2);
+      win(cx - w * 0.28, 2.0, fz, 1.3, 1.3, facing);
+      win(cx + w * 0.3, 2.0, fz, 1.0, 1.3, facing);
+      box(0.95, 2.2, 0.06, 0x5A3D2A, cx + w * 0.02, 1.45, fz + facing * 0.04);
+      // terrace slab + small canopy
+      tb(2.6, 0.3, 1.6, R.paving, cx, 0.15, fz + facing * 0.8);
+      box(2.8, 0.12, 1.8, 0xE8E4DC, cx, 3.1, fz + facing * 0.9);
+    }
+    function lowFence(x0, x1, z, color) {
+      var len = x1 - x0;
+      box(len, 1.5, 0.18, color, (x0 + x1) / 2, 0.75, z);
+      box(len + 0.04, 0.06, 0.24, 0xD9D4CB, (x0 + x1) / 2, 1.53, z);
+    }
+    // Ground for neighbour lots and across the street
+    tb(11, 0.1, 21.4, R.paving, -15.9, -0.05, 0.1);
+    tb(10.6, 0.1, 21.4, R.paving, 11.0, -0.05, 0.1);
+    tb(44, 0.1, 12, R.paving, -2, -0.05, 25.5);
+    tb(4, 0.04, 5, R.grass, -18.5, 0.02, 6.5);
+    tb(4, 0.04, 5, R.grass, 13.8, 0.02, 6.5);
+    // Side neighbours (fronts face the street, +z)
+    neighbour(-15.6, 0.5, 8.4, 9.0, 0xEDE6D8, R.roofClay, 1);
+    neighbour(11.2, 0.0, 8.6, 9.5, 0xE8E2C9, R.roofDark, 1);
+    lowFence(-21, -10.5, 10.6, 0xEDE6D8); lowFence(5.8, 16.4, 10.6, 0xD8D2C2);
+    // Across the street (fronts face -z)
+    neighbour(-12.5, 25.5, 9.0, 8.0, 0xE3E7E4, R.roofDark, -1);
+    neighbour(0.5, 25.5, 9.5, 8.0, 0xF0E7D6, R.roofClay, -1);
+    neighbour(13.5, 25.5, 8.5, 8.0, 0xE6E0D2, R.roofClay, -1);
+    lowFence(-18, 18, 19.8, 0xE4DFD6);
+    box(44, 0.18, 0.3, 0xB5B2AC, -2, 0.09, 19.35);
+    // Utility poles and overhead wires along the street, like the real street
+    var poles = [-16, -4, 8, 20];
+    poles.forEach(function (x) {
+      cyl(0.11, 0.15, 8.5, 0x8F8C86, x, 4.25, 11.55, 10);
+      box(1.6, 0.1, 0.1, 0x3C3C3C, x, 7.9, 11.55);
+      box(0.18, 0.5, 0.18, 0x6E6E6E, x + 0.2, 7.4, 11.4);
+    });
+    for (var i = 0; i < poles.length - 1; i++) [-0.7, 0, 0.7].forEach(function (o, k) {
+      var x0 = poles[i], x1 = poles[i + 1], len = x1 - x0;
+      var w = cyl(0.012, 0.012, len, 0x1E1E1E, (x0 + x1) / 2, 7.95 - 0.35 - k * 0.05, 11.55 + o, 4);
+      w.rotation.z = Math.PI / 2; w.castShadow = false;
+    });
+    // Big tropical trees behind and around
+    var T2 = { trunk: 0x6B4A2E, leaf: 0x3F6B33 };
+    [[-14, -14, 1.9], [-4, -15, 2.2], [9, -14, 1.8], [18, -5, 1.6], [-23, 3, 1.7], [-19, 8.5, 0.9], [15.5, 8.6, 0.8], [-6, 30, 1.5], [9, 31, 1.7]].forEach(function (t) {
+      cyl(0.18 * t[2], 0.26 * t[2], 2.6 * t[2], T2.trunk, t[0], 1.3 * t[2], t[1], 10);
+      ball(1.5 * t[2], T2.leaf, t[0], 3.1 * t[2], t[1], 1, 0.75, 1);
+      ball(1.1 * t[2], 0x4C7A3A, t[0] + 0.9 * t[2], 2.8 * t[2], t[1] + 0.4 * t[2], 1, 0.7, 1);
+      ball(1.0 * t[2], 0x36602D, t[0] - 0.8 * t[2], 3.4 * t[2], t[1] - 0.3 * t[2], 1, 0.7, 1);
+    });
+    G = scene;
+  })();
+  R.roofClay.side = THREE.DoubleSide;
+  // Sun from the front-left so shadows fall across the yard and read clearly
+  sun.position.set(-12, 21, 15);
+
   // Tone down environment reflections so colours stay saturated
   var fixed = new Set();
   scene.traverse(function (o) {
@@ -1020,15 +1101,17 @@ button[aria-pressed="true"] { background: var(--accent); color: var(--accent-fg)
   }
   var skyDay = skyTex('#5E93C8', '#A9C9E6', '#E6EDF1'), skyNight = skyTex('#060A12', '#141E2E', '#2A3346');
   scene.fog = new THREE.Fog(0xDDE6EC, 45, 160);
-  sun.shadow.mapSize.set(4096, 4096);
+  var small = Math.min(window.innerWidth, window.innerHeight) < 700;
+  sun.shadow.mapSize.set(small ? 2048 : 4096, small ? 2048 : 4096);
+  if (small) renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.5));
   sun.shadow.normalBias = 0.02;
 
   /* ---------------- UI ---------------- */
   var views = {
-    iso: { p: [15, 9, 21], t: [0, 1.6, -1] }, in: { p: [9, 15, 9], t: [0, 0.5, -2.8] }, front: { p: [2, 5, 25], t: [0, 1.8, 1] },
-    left: { p: [-25, 6, 0], t: [0, 1.6, -1] }, right: { p: [25, 6, -1], t: [0, 1.6, -1] },
+    iso: { p: [13, 9.5, 18.5], t: [-1, 1.4, 0] }, in: { p: [9, 15, 9], t: [0, 0.5, -2.8] }, front: { p: [0.6, 3.2, 17.5], t: [-1.2, 2.0, 2] },
+    left: { p: [-18, 11, 5], t: [-4, 1.2, 0] }, right: { p: [17, 11, 4], t: [2, 1.2, -1] },
     back: { p: [-4, 8, -29], t: [0, 1.6, -3] }, top: { p: [0.1, 38, 1.4], t: [0, 0, 1] },
-    car: { p: [-7.4, 2.0, 13.5], t: [-7.4, 1.4, -2] }, garden: { p: [5.6, 2.0, 2.3], t: [9.2, 1.2, -2.2] },
+    car: { p: [-6.65, 1.9, 9.6], t: [-6.65, 1.3, -2] }, garden: { p: [5.6, 2.0, 2.3], t: [9.2, 1.2, -2.2] },
     koi: { p: [-4.6, 2.6, -4.2], t: [-9.0, 0.6, -8.4] }
   };
   var anim = null;
@@ -1070,6 +1153,7 @@ button[aria-pressed="true"] { background: var(--accent); color: var(--accent-fg)
     nightLights.forEach(function (l) { l.intensity = state.night ? 2.6 : 0; });
     roomLights.forEach(function (l) { l.intensity = state.night ? 1.8 : 0.5; });
     applySky();
+    renderer.shadowMap.needsUpdate = true;
   }
   bBefore.addEventListener('click', function () { state.mode = 'before'; sync(); });
   bAfter.addEventListener('click', function () { state.mode = 'after'; sync(); });
