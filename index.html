@@ -77,7 +77,7 @@ button[aria-pressed="true"] { background: var(--accent); color: var(--accent-fg)
   <header>
     <div>
       <h1>Design Rumah</h1>
-      <p class="sub"><strong id="ttl">Sesudah Renovasi</strong> ·Geser 1 jari / klik kiri: putar · 2 jari / klik kanan: geser · cubit / scroll: zoom</p>
+      <p class="sub">Geser 1 jari / klik kiri: putar · 2 jari / klik kanan: geser · cubit / scroll: zoom</p>
     </div>
     <div class="bar">
       <div class="seg" role="group" aria-label="Versi rumah">
@@ -959,7 +959,6 @@ button[aria-pressed="true"] { background: var(--accent); color: var(--accent-fg)
   var state = { mode: 'after', roofOff: false, night: false };
   var bBefore = document.getElementById('m-before'), bAfter = document.getElementById('m-after');
   var bRoof = document.getElementById('t-roof'), bNight = document.getElementById('t-night');
-  var ttl = document.getElementById('ttl');
   function sync() {
     before.visible = state.mode === 'before'; after.visible = state.mode === 'after';
     roofsBefore.visible = roofsAfter.visible = !state.roofOff;
@@ -968,7 +967,6 @@ button[aria-pressed="true"] { background: var(--accent); color: var(--accent-fg)
     bAfter.setAttribute('aria-pressed', String(state.mode === 'after'));
     bRoof.setAttribute('aria-pressed', String(state.roofOff));
     bNight.setAttribute('aria-pressed', String(state.night));
-    ttl.textContent = state.mode === 'after' ? 'Sesudah Renovasi' : 'Sebelum Renovasi';
     document.getElementById('note-after').hidden = state.mode !== 'after';
     document.getElementById('note-before').hidden = state.mode !== 'before';
     ['koi', 'car'].forEach(function (k) { document.querySelector('[data-view="' + k + '"]').hidden = state.mode !== 'after'; });
