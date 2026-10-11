@@ -286,13 +286,20 @@ button[aria-pressed="true"] { background: var(--accent); color: var(--accent-fg)
     ball(1.4 * s, C.leaf, x, 2.8 * s, z);
   }
   function plant(x, y, z, s, c) {
-    cyl(0.025, 0.03, 0.9 * s, 0x4C6B35, x, y + 0.45 * s, z, 6);
-    for (var i = 0; i < 5; i++) {
-      var ang = i * 1.26, r = 0.28 * s;
-      var l = ball(0.32 * s, c, x + Math.cos(ang) * r, y + (0.55 + (i % 3) * 0.22) * s, z + Math.sin(ang) * r, 1, 0.12, 0.6);
-      l.rotation.y = -ang; l.rotation.z = 0.5;
+    var n = 8;
+    for (var i = 0; i < n; i++) {
+      var ang = i * (6.283 / n) + Math.random() * 0.5, L = (0.45 + Math.random() * 0.2) * s, tilt = 0.5 + Math.random() * 0.6;
+      var stalk = cyl(0.008 * s, 0.012 * s, 0.5 * s, 0x4C6B35, x + Math.cos(ang) * 0.06 * s, y + 0.25 * s, z + Math.sin(ang) * 0.06 * s, 5);
+      stalk.rotation.set(Math.sin(ang) * tilt * 0.5, 0, -Math.cos(ang) * tilt * 0.5);
+      var m = new THREE.Mesh(cardGeo, FOL.big); m.customDepthMaterial = FOL.dBig;
+      m.rotation.order = 'YXZ'; m.rotation.set(tilt, Math.PI / 2 - ang, 0);
+      m.scale.set(L * 0.62, L, 1);
+      var out = 0.12 * s + Math.sin(tilt) * L * 0.5;
+      m.position.set(x + Math.cos(ang) * out, y + 0.42 * s + Math.cos(tilt) * L * 0.5, z + Math.sin(ang) * out);
+      add(m);
     }
   }
+
 
   function ring(w, d, h, y, t, c, cx, cz) {
     box(w, h, t, c, cx, y, cz + d / 2 - t / 2); box(w, h, t, c, cx, y, cz - d / 2 + t / 2);
@@ -341,6 +348,83 @@ button[aria-pressed="true"] { background: var(--accent); color: var(--accent-fg)
     var tex = new THREE.CanvasTexture(cv); tex.encoding = THREE.sRGBEncoding;
     var s = new THREE.Sprite(new THREE.SpriteMaterial({ map: tex, depthTest: false, transparent: true }));
     s.scale.set(2.6, 0.65, 1); s.position.set(x, y, z); s.renderOrder = 10; labels.add(s);
+  }
+
+  /* ---------------- Foliage: alpha-textured leaf cards instead of spheres ---------------- */
+  var FOL = (function () {
+    function canvasTex(size, draw) {
+      var cv = document.createElement('canvas'); cv.width = cv.height = size;
+      draw(cv.getContext('2d'), size);
+      var t = new THREE.CanvasTexture(cv); t.encoding = THREE.sRGBEncoding; return t;
+    }
+    function rc(h0, h1, s0, s1, l0, l1) { return 'hsl(' + (h0 + Math.random() * (h1 - h0)) + ',' + (s0 + Math.random() * (s1 - s0)) + '%,' + (l0 + Math.random() * (l1 - l0)) + '%)'; }
+    function leaf(g, x, y, len, wid, ang, col) {
+      g.save(); g.translate(x, y); g.rotate(ang); g.fillStyle = col;
+      g.beginPath(); g.moveTo(0, 0); g.quadraticCurveTo(wid, len * 0.45, 0, len); g.quadraticCurveTo(-wid, len * 0.45, 0, 0); g.fill();
+      g.strokeStyle = 'rgba(0,0,0,0.2)'; g.lineWidth = 1; g.beginPath(); g.moveTo(0, 0); g.lineTo(0, len * 0.95); g.stroke();
+      g.restore();
+    }
+    var cluster = canvasTex(256, function (g, s) {
+      for (var i = 0; i < 320; i++) {
+        var r = Math.sqrt(Math.random()) * s * 0.44, a = Math.random() * 6.283;
+        leaf(g, s / 2 + Math.cos(a) * r, s / 2 + Math.sin(a) * r, 12 + Math.random() * 14, 4 + Math.random() * 4, Math.random() * 6.283, rc(82, 120, 28, 55, 14 + (1 - r / (s * 0.44)) * 6, 34 + (1 - r / (s * 0.44)) * 8));
+      }
+    });
+    var fine = canvasTex(256, function (g, s) {
+      for (var i = 0; i < 420; i++) {
+        var r = Math.sqrt(Math.random()) * s * 0.45, a = Math.random() * 6.283;
+        leaf(g, s / 2 + Math.cos(a) * r, s / 2 + Math.sin(a) * r, 8 + Math.random() * 8, 3 + Math.random() * 2, Math.random() * 6.283, rc(90, 125, 30, 50, 15, 36));
+      }
+    });
+    var hedge = canvasTex(256, function (g, s) {
+      g.fillStyle = '#1C3516'; g.fillRect(0, 0, s, s);
+      for (var i = 0; i < 1400; i++) leaf(g, Math.random() * s, Math.random() * s, 8 + Math.random() * 8, 3 + Math.random() * 3, Math.random() * 6.283, rc(88, 118, 30, 52, 16, 40));
+    });
+    hedge.wrapS = hedge.wrapT = THREE.RepeatWrapping; hedge.repeat.set(1.6, 1.6);
+    var big = canvasTex(256, function (g, s) {
+      var gr = g.createLinearGradient(0, 0, s, 0); gr.addColorStop(0, '#2F6224'); gr.addColorStop(0.5, '#4A8A35'); gr.addColorStop(1, '#2F6224');
+      g.fillStyle = gr; g.beginPath(); g.moveTo(s / 2, s * 0.02);
+      g.bezierCurveTo(s * 0.98, s * 0.28, s * 0.86, s * 0.84, s / 2, s * 0.98); g.bezierCurveTo(s * 0.14, s * 0.84, s * 0.02, s * 0.28, s / 2, s * 0.02); g.fill();
+      g.strokeStyle = 'rgba(205,230,165,0.6)'; g.lineWidth = 3; g.beginPath(); g.moveTo(s / 2, s * 0.04); g.lineTo(s / 2, s * 0.96); g.stroke();
+      g.lineWidth = 1.4;
+      for (var k = 1; k < 9; k++) { var y = s * 0.1 * k; g.beginPath(); g.moveTo(s / 2, y); g.quadraticCurveTo(s * 0.66, y + 8, s * 0.84, y + 24); g.moveTo(s / 2, y); g.quadraticCurveTo(s * 0.34, y + 8, s * 0.16, y + 24); g.stroke(); }
+    });
+    function card(map, color) { return new THREE.MeshStandardMaterial({ map: map, color: color || 0xFFFFFF, alphaTest: 0.5, side: THREE.DoubleSide, roughness: 0.72, metalness: 0 }); }
+    function depth(map) { return new THREE.MeshDepthMaterial({ depthPacking: THREE.RGBADepthPacking, map: map, alphaTest: 0.5 }); }
+    return {
+      cluster: card(cluster), clusterLight: card(cluster, 0xD9EBC0), fine: card(fine), big: card(big),
+      dCluster: depth(cluster), dFine: depth(fine), dBig: depth(big),
+      hedge: new THREE.MeshStandardMaterial({ map: hedge, roughness: 0.88, bumpMap: hedge, bumpScale: 0.06 })
+    };
+  })();
+  var cardGeo = new THREE.PlaneGeometry(1, 1), petalGeo = new THREE.SphereGeometry(0.035, 6, 4);
+  function bush(x, y, z, r, flower, kind) {
+    var g = new THREE.Group(); g.position.set(x, y, z);
+    var m0 = kind === 'fine' ? FOL.fine : (kind === 'light' ? FOL.clusterLight : FOL.cluster), d0 = kind === 'fine' ? FOL.dFine : FOL.dCluster;
+    var n = Math.max(7, Math.round(r * 22));
+    for (var i = 0; i < n; i++) {
+      var m = new THREE.Mesh(cardGeo, m0); m.customDepthMaterial = d0;
+      var a = Math.random() * 6.283, rr = Math.random() * r * 0.55, h = r * (0.4 + Math.random() * 0.7);
+      m.position.set(Math.cos(a) * rr, h, Math.sin(a) * rr);
+      m.rotation.set(Math.random() * 3.14, Math.random() * 3.14, Math.random() * 3.14);
+      var sc = r * (1.0 + Math.random() * 0.5); m.scale.set(sc, sc, sc);
+      m.castShadow = true; m.receiveShadow = true; g.add(m);
+    }
+    if (flower) for (var f = 0; f < Math.round(r * 45); f++) {
+      var a2 = Math.random() * 6.283, el = Math.random() * 1.3, rr2 = r * (0.55 + Math.random() * 0.3);
+      var p = new THREE.Mesh(petalGeo, mat(flower));
+      p.position.set(Math.cos(a2) * Math.cos(el) * rr2, r * 0.75 + Math.sin(el) * rr2 * 0.8, Math.sin(a2) * Math.cos(el) * rr2);
+      g.add(p);
+    }
+    G.add(g); return g;
+  }
+  function rock(x, z, r, sy) {
+    var m = new THREE.Mesh(new THREE.DodecahedronGeometry(r, 1), mat(0x8E8B85));
+    var pos = m.geometry.attributes.position;
+    for (var i = 0; i < pos.count; i++) pos.setXYZ(i, pos.getX(i) * (0.85 + Math.random() * 0.3), pos.getY(i) * (0.85 + Math.random() * 0.3), pos.getZ(i) * (0.85 + Math.random() * 0.3));
+    m.geometry.computeVertexNormals();
+    m.scale.set(1.3, sy || 0.55, 1); m.rotation.y = Math.random() * 6.28; m.position.set(x, r * (sy || 0.55) * 0.5, z);
+    return add(m);
   }
 
   /* ---------------- BEFORE: as filmed ---------------- */
@@ -415,7 +499,7 @@ button[aria-pressed="true"] { background: var(--accent); color: var(--accent-fg)
   (function () {
     G = after;
     var C = {
-      white: 0xF4F3F0, cream: 0xE6E2DA, stoneBase: 0xA7AAAC, roof: 0x3A3E44, black: 0x1A1C1F,
+      white: 0xF4F3F0, wall: 0xD5CABA, cream: 0xE6E2DA, stoneBase: 0xA7AAAC, roof: 0x3A3E44, black: 0x1A1C1F,
       gold: 0xC5A04A, marble: 0xE9E7E3, paving: 0xBDB9B2, paveDark: 0x8C8E90, grass: 0x6F9150,
       wood: 0x8A5A36, pebble: 0xCFCBC4, stone: 0x9A8670, darkStone: 0x4E5156, texGrey: 0x75787C,
       creamDoor: 0xE9E1CC, leaf: 0x4E8A3A, leaf2: 0x6FA845, trunk: 0x6B4A2E
@@ -432,12 +516,12 @@ button[aria-pressed="true"] { background: var(--accent); color: var(--accent-fg)
 
     // Main house shell
     box(8.6, 0.45, 7.1, C.stoneBase, 0.75, 0.225, -0.5);
-    wallHoles('z', 2.9, -3.5, 5, 0, 3.6, 0.2, [[-2.3, -1.2, 0.95, 3.05], [2.15, 3.85, 0.45, 3.05]], C.white);
-    box(2.9, 3.6, 0.2, C.white, -2.05, 1.8, -3.9);
-    box(4.4, 3.6, 0.2, C.white, 2.8, 1.8, -3.9);
-    box(1.2, 1.1, 0.2, C.white, 0, 3.05, -3.9);
-    wallHoles('x', -3.4, -4, 3, 0, 3.6, 0.2, [[-1.7, -0.7, 0.45, 2.75], [0.9, 2.1, 1.0, 2.8]], C.white);
-    box(0.2, 3.6, 7, C.white, 4.9, 1.8, -0.5);
+    wallHoles('z', 2.9, -3.5, 5, 0, 3.6, 0.2, [[-2.3, -1.2, 0.95, 3.05], [2.15, 3.85, 0.45, 3.05]], C.wall);
+    box(2.9, 3.6, 0.2, C.wall, -2.05, 1.8, -3.9);
+    box(4.4, 3.6, 0.2, C.wall, 2.8, 1.8, -3.9);
+    box(1.2, 1.1, 0.2, C.wall, 0, 3.05, -3.9);
+    wallHoles('x', -3.4, -4, 3, 0, 3.6, 0.2, [[-1.7, -0.7, 0.45, 2.75], [0.9, 2.1, 1.0, 2.8]], C.wall);
+    box(0.2, 3.6, 7, C.wall, 4.9, 1.8, -0.5);
     box(8.5, 0.1, 7, 0xE4E1DB, 0.75, 0.45, -0.5);
     ring(8.9, 7.4, 0.25, 3.72, 0.45, C.cream, 0.75, -0.5);
     ring(9.2, 7.7, 0.18, 3.93, 0.5, C.white, 0.75, -0.5);
@@ -450,7 +534,7 @@ button[aria-pressed="true"] { background: var(--accent); color: var(--accent-fg)
       box(1.5, 0.08, 0.2, C.cream, x, 0.88, 3.1);
     });
     box(4.3, 0.55, 0.7, C.darkStone, -1.35, 0.275, 3.36);
-    for (var sx = -3.2; sx <= 0.5; sx += 0.45) ball(0.28, C.leaf, sx, 0.72, 3.36, 1, 0.8, 1);
+    for (var sx = -3.2; sx <= 0.5; sx += 0.42) bush(sx, 0.5, 3.36, 0.3, sx > -2.4 && sx < -1.0 ? null : 0xE9E2F0, 'fine');
 
     // Entry porch with arch frames
     box(4.0, 0.45, 3.4, C.marble, 3, 0.225, 4.7);
@@ -482,7 +566,7 @@ button[aria-pressed="true"] { background: var(--accent); color: var(--accent-fg)
 
     // Carport (left)
     box(6.3, 0.08, 11.2, 0xDEDBD5, -6.65, 0.04, 2.0);
-    box(0.2, 2.4, 11.2, C.white, -9.9, 1.2, 2.0);
+    box(0.2, 2.4, 11.2, C.wall, -9.9, 1.2, 2.0);
     box(0.3, 0.12, 11.2, C.cream, -9.85, 2.46, 2.0);
     [6.4, 4.2, 2.0, -0.2, -2.4].forEach(function (z) {
       var n = extrude(archSolid(1.2, 1.4), 0.03, 0xE1DED7); n.rotation.y = Math.PI / 2; n.position.set(-9.8, 0.45, z);
@@ -496,7 +580,7 @@ button[aria-pressed="true"] { background: var(--accent); color: var(--accent-fg)
     box(6.9, 0.15, 11.7, C.white, -6.75, 3.97, 2.0);
     box(3.6, 0.12, 8.6, 0xEDEBE6, -6.65, 3.34, 2.4);
     for (var dz = -2.6; dz <= 7; dz += 1.6) { cyl(0.07, 0.07, 0.02, lampMat, -8.9, 3.39, dz, 12); cyl(0.07, 0.07, 0.02, lampMat, -6.65, 3.39, dz, 12); cyl(0.07, 0.07, 0.02, lampMat, -4.4, 3.39, dz, 12); }
-    box(6.3, 3.4, 0.2, C.white, -6.65, 1.7, -3.65);
+    box(6.3, 3.4, 0.2, C.wall, -6.65, 1.7, -3.65);
     opening('front', -3.55, -7.4, 0.1, 2.4, 2.6, { frame: C.cream, door: C.creamDoor, double: true, handle: C.gold, fw: 0.24 });
     box(3.1, 0.2, 0.18, C.cream, -7.4, 2.98, -3.5);
 
@@ -523,9 +607,9 @@ button[aria-pressed="true"] { background: var(--accent); color: var(--accent-fg)
 
     // Rear annex, rendered white with hip roof
     box(8, 0.3, 6, C.stoneBase, 0, 0.15, -7);
-    box(8, 3.3, 0.2, C.white, 0, 1.65, -9.9);
-    wallHoles('x', -3.9, -10, -4, 0, 3.3, 0.2, [[-8.5, -5.5, 0.3, 2.7]], C.white);
-    wallHoles('x', 3.9, -10, -4, 0, 3.3, 0.2, [[-9.2, -7.8, 1.0, 2.4], [-5.95, -5.05, 2.0, 2.6]], C.white);
+    box(8, 3.3, 0.2, C.wall, 0, 1.65, -9.9);
+    wallHoles('x', -3.9, -10, -4, 0, 3.3, 0.2, [[-8.5, -5.5, 0.3, 2.7]], C.wall);
+    wallHoles('x', 3.9, -10, -4, 0, 3.3, 0.2, [[-9.2, -7.8, 1.0, 2.4], [-5.95, -5.05, 2.0, 2.6]], C.wall);
     opening('right', 4.0, -8.5, 1.0, 1.4, 1.4, { frame: C.black, glass: glassAfter, fw: 0.14, cols: 2, rows: 1 });
     opening('left', -4.0, -7.0, 0.3, 3.0, 2.4, { frame: C.black, glass: 'none', fw: 0.14 });
     box(0.03, 2.4, 1.5, glassAfter, -4.06, 1.5, -7.75);
@@ -536,7 +620,7 @@ button[aria-pressed="true"] { background: var(--accent); color: var(--accent-fg)
     hip(8.8, 6.8, 3.55, 1.7, C.roof).position.set(0, 0, -7);
     G = after;
     // Right boundary (neighbour side)
-    box(0.2, 2.6, 13.3, C.white, 5.4, 1.3, -3.65);
+    box(0.2, 2.6, 13.3, C.wall, 5.4, 1.3, -3.65);
     // Front fence (about 2.3 m): stone plinth, solid white wall to 1.1 m, black bars with gold rail above,
     // tall crowned pillars with lanterns, full-height gates with a privacy panel
     function bars(len, h, y0, parent, gap) {
@@ -553,7 +637,7 @@ button[aria-pressed="true"] { background: var(--accent); color: var(--accent-fg)
       g.position.set(axis === 'z' ? (a0 + a1) / 2 : at, 0, axis === 'z' ? at : (a0 + a1) / 2);
       if (axis === 'x') g.rotation.y = Math.PI / 2;
       box(len, 0.4, 0.34, C.stone, 0, 0.2, 0, g);
-      box(len, 0.7, 0.28, C.white, 0, 0.75, 0, g);
+      box(len, 0.7, 0.28, C.wall, 0, 0.75, 0, g);
       box(len + 0.02, 0.07, 0.36, C.cream, 0, 1.135, 0, g);
       bars(len, 1.15, 1.17, g);
       after.add(g);
@@ -593,19 +677,13 @@ button[aria-pressed="true"] { background: var(--accent); color: var(--accent-fg)
     box(0.34, 0.26, 0.12, C.black, 2.0, 1.5, 10.94); box(0.24, 0.02, 0.02, C.gold, 2.0, 1.58, 11.0);
     // ---------- Front garden ----------
     var seed = 7; function sr() { seed = (seed * 16807) % 2147483647; return (seed - 1) / 2147483646; }
-    function shrub(x, z, r, c, flower) {
-      for (var k = 0; k < 5; k++) {
-        var s = r * (0.55 + sr() * 0.45);
-        ball(s, c, x + (sr() - 0.5) * r * 1.1, s * 0.75 + sr() * r * 0.3, z + (sr() - 0.5) * r * 1.1, 1, 0.85, 1);
-      }
-      if (flower) for (var f = 0; f < 10; f++) {
-        var a = sr() * 6.28, h = sr() * 0.9;
-        ball(0.045, flower, x + Math.cos(a) * r * 0.85, r * (0.5 + h * 0.7), z + Math.sin(a) * r * 0.85).castShadow = false;
-      }
-    }
-    // Boxwood hedge along the inside of the fence
-    for (var hx = -3.1; hx <= 1.4; hx += 0.42) shrub(hx, 10.15, 0.3, 0x3F6B33);
-    for (var hx2 = 4.4; hx2 <= 5.1; hx2 += 0.42) shrub(hx2, 10.15, 0.28, 0x3F6B33);
+    function shrub(x, z, r, c, flower) { bush(x, 0, z, r, flower, r < 0.36 ? 'fine' : null); }
+    // Clipped hedge along the inside of the fence (leafy box + loose leaves on top)
+    [[-3.1, 1.5], [4.35, 5.1]].forEach(function (h) {
+      var len = h[1] - h[0], hb = new THREE.Mesh(new THREE.BoxGeometry(len, 1.4, 0.5), FOL.hedge);
+      meterUV(hb.geometry); hb.position.set((h[0] + h[1]) / 2, 0.72, 10.1); add(hb);
+      for (var hx = h[0] + 0.2; hx < h[1]; hx += 0.45) bush(hx, 1.1, 10.1, 0.3, null, 'fine');
+    });
     // Frangipani (kamboja) tree with white blossoms
     (function (x, z) {
       cyl(0.09, 0.14, 1.3, 0x7D6E5E, x, 0.65, z, 10);
@@ -613,9 +691,7 @@ button[aria-pressed="true"] { background: var(--accent); color: var(--accent-fg)
         var len = Math.sqrt(b[0] * b[0] + b[1] * b[1] + b[2] * b[2]);
         var br = cyl(0.04, 0.07, len, 0x7D6E5E, x + b[0] / 2, 1.3 + b[1] / 2, z + b[2] / 2, 8);
         br.lookAt(x + b[0], 1.3 + b[1], z + b[2]); br.rotateX(Math.PI / 2);
-        ball(0.42, 0x4C7A33, x + b[0], 1.35 + b[1], z + b[2], 1, 0.6, 1);
-        for (var fl = 0; fl < 7; fl++) ball(0.06, 0xFBF6E6, x + b[0] + (sr() - 0.5) * 0.6, 1.52 + b[1] + sr() * 0.12, z + b[2] + (sr() - 0.5) * 0.6).castShadow = false;
-        ball(0.05, 0xF2C94C, x + b[0], 1.62 + b[1], z + b[2]).castShadow = false;
+        bush(x + b[0], 1.05 + b[1], z + b[2], 0.55, 0xFBF6E6);
       });
     })(-2.3, 8.4);
     // Flowering shrubs, ornamental grass, boulders
@@ -628,8 +704,9 @@ button[aria-pressed="true"] { background: var(--accent); color: var(--accent-fg)
         bl.rotation.set((sr() - 0.5) * 0.7, sr() * 3, (sr() - 0.5) * 0.7); bl.castShadow = false;
       }
     });
-    ball(0.38, 0x8D8A84, -1.0, 0.12, 6.3, 1.4, 0.55, 1); ball(0.26, 0x9A968F, -0.55, 0.09, 6.6, 1.2, 0.55, 1);
-    ball(0.3, 0x8D8A84, -2.6, 0.1, 9.4, 1.3, 0.55, 1);
+    rock(-1.0, 6.3, 0.38); rock(-0.5, 6.65, 0.24, 0.7); rock(-2.6, 9.4, 0.3); rock(0.6, 9.8, 0.2, 0.8);
+    // Mulch beds under the shrubs
+    [[-3.0, 4.6, 0.75], [0.9, 4.4, 0.6], [-2.3, 8.4, 1.0]].forEach(function (m) { var mb = cyl(m[2], m[2], 0.03, 0x4A3B2E, m[0], 0.045, m[1], 24); mb.castShadow = false; });
     // Steel lawn edging + low garden bollard lights
     box(5.3, 0.08, 0.04, C.black, -0.75, 0.04, 3.74);
     box(0.04, 0.08, 6.6, C.black, 1.9, 0.04, 7.05);
@@ -662,15 +739,15 @@ button[aria-pressed="true"] { background: var(--accent); color: var(--accent-fg)
 
     // 3D grass tufts in the front garden
     (function () {
-      var n = 6500, geo = new THREE.ConeGeometry(0.022, 0.2, 3); geo.translate(0, 0.1, 0);
+      var n = 16000, geo = new THREE.ConeGeometry(0.012, 0.18, 3); geo.translate(0, 0.09, 0);
       var im = new THREE.InstancedMesh(geo, new THREE.MeshStandardMaterial({ roughness: 1 }), n);
       var d = new THREE.Object3D(), col = new THREE.Color();
       for (var i = 0; i < n; i++) {
         d.position.set(-3.35 + Math.random() * 5.2, 0.03, 3.8 + Math.random() * 6.15);
-        d.rotation.set((Math.random() - 0.5) * 0.5, Math.random() * 6.28, (Math.random() - 0.5) * 0.5);
-        var s = 0.6 + Math.random() * 0.8; d.scale.set(s, s, s); d.updateMatrix();
+        d.rotation.set((Math.random() - 0.5) * 0.9, Math.random() * 6.28, (Math.random() - 0.5) * 0.9);
+        var s = 0.5 + Math.random() * 0.9; d.scale.set(s, s, s); d.updateMatrix();
         im.setMatrixAt(i, d.matrix);
-        im.setColorAt(i, col.setHSL(0.22 + Math.random() * 0.06, 0.45, 0.22 + Math.random() * 0.14).convertSRGBToLinear());
+        im.setColorAt(i, col.setHSL(0.2 + Math.random() * 0.08, 0.35 + Math.random() * 0.2, 0.18 + Math.random() * 0.16).convertSRGBToLinear());
       }
       im.receiveShadow = true; after.add(im);
     })();
@@ -911,7 +988,7 @@ button[aria-pressed="true"] { background: var(--accent); color: var(--accent-fg)
   function tm(map, o) { o = o || {}; return new THREE.MeshStandardMaterial({ map: map, color: o.color || 0xFFFFFF, roughness: o.r === undefined ? 0.85 : o.r, metalness: o.m || 0, side: o.side || THREE.FrontSide, flatShading: !!o.flat }); }
   var R = {
     plasterW: tm(T.plaster, { color: 0xF4F3F0, r: 0.9 }), plasterC: tm(T.plaster, { color: 0xE6E2DA, r: 0.9 }),
-    plasterPink: tm(T.plaster, { color: 0xF0DCD6, r: 0.92 }),
+    plasterPink: tm(T.plaster, { color: 0xF0DCD6, r: 0.92 }), plasterG: tm(T.plaster, { r: 0.92 }),
     marble: tm(T.marble, { r: 0.18 }), paving: tm(T.paving, { r: 0.9 }), paveDark: tm(T.paveDark, { r: 0.9 }),
     grass: tm(T.grass, { r: 1 }), deck: tm(T.wood, { color: 0xB08A6A, r: 0.7 }), oak: tm(T.wood, { color: 0xFFF3E4, r: 0.5 }),
     woodF: tm(T.wood, { color: 0xC79B7A, r: 0.55 }), stone: tm(T.stone, { r: 0.95 }),
@@ -926,7 +1003,7 @@ button[aria-pressed="true"] { background: var(--accent); color: var(--accent-fg)
   };
   [['roofDark', 0.25], ['roofClay', 0.25], ['stone', 0.3], ['brick', 0.25], ['paving', 0.12], ['paveDark', 0.12], ['deck', 0.08],
    ['texGrey', 0.2], ['darkStone', 0.08], ['stoneBase', 0.08], ['grass', 0.12], ['plasterW', 0.02], ['plasterC', 0.02],
-   ['plasterPink', 0.02], ['dirt', 0.15], ['asphalt', 0.1], ['fabric', 0.05], ['fabric2', 0.05]].forEach(function (b) {
+   ['plasterPink', 0.02], ['plasterG', 0.025], ['dirt', 0.15], ['asphalt', 0.1], ['fabric', 0.05], ['fabric2', 0.05]].forEach(function (b) {
     R[b[0]].bumpMap = R[b[0]].map; R[b[0]].bumpScale = b[1];
   });
   glassAfter.roughness = 0.03; glassAfter.metalness = 0.1; glassAfter.color.setHex(0xB4CAD4);
@@ -934,7 +1011,7 @@ button[aria-pressed="true"] { background: var(--accent); color: var(--accent-fg)
   waterMat.roughness = 0.03; waterMat.metalness = 0.6;
   var byColor = {
     0xF4F3F0: R.plasterW, 0xE6E2DA: R.plasterC, 0xE1DED7: R.plasterC, 0xEDEBE6: R.plasterW, 0xF0DCD6: R.plasterPink,
-    0xF7F6F3: R.plasterW, 0xE9E7E3: R.marble, 0xDEDBD5: R.marble, 0xE4E1DB: R.marble, 0xBDB9B2: R.paving, 0x8C8E90: R.paveDark,
+    0xD5CABA: R.plasterG, 0xF7F6F3: R.plasterW, 0xE9E7E3: R.marble, 0xDEDBD5: R.marble, 0xE4E1DB: R.marble, 0xBDB9B2: R.paving, 0x8C8E90: R.paveDark,
     0x6F9150: R.grass, 0x7E9C5E: R.grass, 0x8A5A36: R.deck, 0xC79A68: R.oak, 0x9C6B43: R.woodF,
     0x9A8670: R.stone, 0x75787C: R.texGrey, 0x4E5156: R.darkStone, 0xA7AAAC: R.stoneBase, 0xCFCBC4: R.pebble,
     0xCBD2D4: R.tile, 0x8B4A35: R.brick, 0xB3A285: R.dirt, 0x3A3E44: R.roofDark, 0x8A4630: R.roofClay,
@@ -975,77 +1052,8 @@ button[aria-pressed="true"] { background: var(--accent); color: var(--accent-fg)
   });
   Object.keys(mats).forEach(function (k) { if (mats[k].color.getHex() === 0x4E8A3A || mats[k].color.getHex() === 0x6FA845 || mats[k].color.getHex() === 0x4F7A3E) mats[k].roughness = 0.6; });
 
-  /* ---------------- Neighbourhood context: neighbours, street poles, big trees ---------------- */
-  var ctx = new THREE.Group(); scene.add(ctx);
-  (function () {
-    G = ctx;
-    function tb(w, h, d, m, x, y, z) { var o = box(w, h, d, m, x, y, z); if (m.map) meterUV(o.geometry); return o; }
-    function win(x, y, z, w, h, nz) {
-      box(w + 0.12, h + 0.12, 0.06, 0x2B2622, x, y, z + nz * 0.02);
-      box(w, h, 0.04, 0x46525A, x, y, z + nz * 0.05);
-      box(0.05, h, 0.06, 0x2B2622, x, y, z + nz * 0.07);
-    }
-    // facing: +1 = front toward +z (street side for houses behind the street), -1 = toward -z
-    function neighbour(cx, cz, w, d, wall, roofMat, facing) {
-      var wm = new THREE.MeshStandardMaterial({ map: R.plasterW.map, color: wall, roughness: 0.9 });
-      wm.bumpMap = R.plasterW.map; wm.bumpScale = 0.02;
-      tb(w + 0.1, 0.35, d + 0.1, R.stoneBase, cx, 0.175, cz);
-      tb(w, 3.3, d, wm, cx, 1.65 + 0.3, cz);
-      var r = hip(w + 1.2, d + 1.2, 3.6, 2.0, 0x777777); r.position.set(cx, 0, cz);
-      if (w + 1.2 < d + 1.2) { r.rotation.y = Math.PI / 2; r.geometry.dispose(); ctx.remove(r); r = hip(d + 1.2, w + 1.2, 3.6, 2.0, 0x777777); r.position.set(cx, 0, cz); r.rotation.y = Math.PI / 2; }
-      roofUV(r.geometry); r.material = roofMat;
-      var fz = cz + facing * (d / 2);
-      win(cx - w * 0.28, 2.0, fz, 1.3, 1.3, facing);
-      win(cx + w * 0.3, 2.0, fz, 1.0, 1.3, facing);
-      box(0.95, 2.2, 0.06, 0x5A3D2A, cx + w * 0.02, 1.45, fz + facing * 0.04);
-      // terrace slab + small canopy
-      tb(2.6, 0.3, 1.6, R.paving, cx, 0.15, fz + facing * 0.8);
-      box(2.8, 0.12, 1.8, 0xE8E4DC, cx, 3.1, fz + facing * 0.9);
-    }
-    function lowFence(x0, x1, z, color) {
-      var len = x1 - x0;
-      box(len, 1.5, 0.18, color, (x0 + x1) / 2, 0.75, z);
-      box(len + 0.04, 0.06, 0.24, 0xD9D4CB, (x0 + x1) / 2, 1.53, z);
-    }
-    // Ground for neighbour lots and across the street
-    tb(11, 0.1, 21.4, R.paving, -15.9, -0.05, 0.1);
-    tb(10.6, 0.1, 21.4, R.paving, 11.0, -0.05, 0.1);
-    tb(44, 0.1, 12, R.paving, -2, -0.05, 25.5);
-    tb(4, 0.04, 5, R.grass, -18.5, 0.02, 6.5);
-    tb(4, 0.04, 5, R.grass, 13.8, 0.02, 6.5);
-    // Side neighbours (fronts face the street, +z)
-    neighbour(-15.6, 0.5, 8.4, 9.0, 0xEDE6D8, R.roofClay, 1);
-    neighbour(11.2, 0.0, 8.6, 9.5, 0xE8E2C9, R.roofDark, 1);
-    lowFence(-21, -10.5, 10.6, 0xEDE6D8); lowFence(5.8, 16.4, 10.6, 0xD8D2C2);
-    // Across the street (fronts face -z)
-    neighbour(-12.5, 25.5, 9.0, 8.0, 0xE3E7E4, R.roofDark, -1);
-    neighbour(0.5, 25.5, 9.5, 8.0, 0xF0E7D6, R.roofClay, -1);
-    neighbour(13.5, 25.5, 8.5, 8.0, 0xE6E0D2, R.roofClay, -1);
-    lowFence(-18, 18, 19.8, 0xE4DFD6);
-    box(44, 0.18, 0.3, 0xB5B2AC, -2, 0.09, 19.35);
-    // Utility poles and overhead wires along the street, like the real street
-    var poles = [-16, -4, 8, 20];
-    poles.forEach(function (x) {
-      cyl(0.11, 0.15, 8.5, 0x8F8C86, x, 4.25, 11.55, 10);
-      box(1.6, 0.1, 0.1, 0x3C3C3C, x, 7.9, 11.55);
-      box(0.18, 0.5, 0.18, 0x6E6E6E, x + 0.2, 7.4, 11.4);
-    });
-    for (var i = 0; i < poles.length - 1; i++) [-0.7, 0, 0.7].forEach(function (o, k) {
-      var x0 = poles[i], x1 = poles[i + 1], len = x1 - x0;
-      var w = cyl(0.012, 0.012, len, 0x1E1E1E, (x0 + x1) / 2, 7.95 - 0.35 - k * 0.05, 11.55 + o, 4);
-      w.rotation.z = Math.PI / 2; w.castShadow = false;
-    });
-    // Big tropical trees behind and around
-    var T2 = { trunk: 0x6B4A2E, leaf: 0x3F6B33 };
-    [[-14, -14, 1.9], [-4, -15, 2.2], [9, -14, 1.8], [18, -5, 1.6], [-23, 3, 1.7], [-19, 8.5, 0.9], [15.5, 8.6, 0.8], [-6, 30, 1.5], [9, 31, 1.7]].forEach(function (t) {
-      cyl(0.18 * t[2], 0.26 * t[2], 2.6 * t[2], T2.trunk, t[0], 1.3 * t[2], t[1], 10);
-      ball(1.5 * t[2], T2.leaf, t[0], 3.1 * t[2], t[1], 1, 0.75, 1);
-      ball(1.1 * t[2], 0x4C7A3A, t[0] + 0.9 * t[2], 2.8 * t[2], t[1] + 0.4 * t[2], 1, 0.7, 1);
-      ball(1.0 * t[2], 0x36602D, t[0] - 0.8 * t[2], 3.4 * t[2], t[1] - 0.3 * t[2], 1, 0.7, 1);
-    });
-    G = scene;
-  })();
   R.roofClay.side = THREE.DoubleSide;
+  R.plasterG.color.setHex(0xCBBDA7).convertSRGBToLinear();
   // Sun from the front-left so shadows fall across the yard and read clearly
   sun.position.set(-12, 21, 15);
 
