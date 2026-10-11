@@ -130,7 +130,7 @@ button[aria-pressed="true"] { background: var(--accent); color: var(--accent-fg)
     <details class="chip" id="note-after" open>
       <summary>Konsep klasik modern: putih, aksen hitam, sentuhan emas</summary>
       <ul>
-        <li><b>Depan:</b> teras gerbang lengkung, teras samping dari carport, jendela kisi berkanopi, pagar roster dengan lampu lengkung, gerbang hitam berukir, atap perisai abu gelap</li>
+        <li><b>Depan:</b> teras gerbang lengkung, teras samping dari carport, jendela kisi berkanopi, pagar jeruji terbuka dengan tiang berlampu, gerbang hitam berukir, atap perisai abu gelap</li>
         <li><b>Kiri:</b> carport 2 mobil beratap dak, lantai motif catur lembut, dinding lengkung berlampu</li>
         <li><b>Belakang kiri:</b> taman dengan dinding batu alam berlampu, kolam koi, dan dek kayu, terlihat dari pintu kaca dapur</li>
         <li><b>Interior:</b> 3 kamar, ruang tamu, ruang keluarga &amp; makan, dapur, kamar mandi. Tekan Interior untuk melihat, atau tombol orang untuk jalan-jalan di dalam rumah</li>
@@ -671,29 +671,21 @@ button[aria-pressed="true"] { background: var(--accent); color: var(--accent-fg)
     // Front fence (photo 2): solid wall with moulded lattice (roster) panels, pillars with a glowing arched niche
     // lamp and a small lantern on top; black laser-cut ornamental gates (folding carport gate, photo 3)
     function fenceRun(axis, a0, a1, at) {
+      // open fence: low solid wall (~0.7 m) with slim black bars above to ~2.2 m, gold accent rail
       var len = a1 - a0, g = new THREE.Group();
       g.position.set(axis === 'z' ? (a0 + a1) / 2 : at, 0, axis === 'z' ? at : (a0 + a1) / 2);
       if (axis === 'x') g.rotation.y = Math.PI / 2;
-      box(len, 0.4, 0.32, C.wall, 0, 0.2, 0, g);
-      box(len + 0.02, 0.05, 0.34, C.cream, 0, 0.42, 0, g);
-      box(len, 0.28, 0.3, C.wall, 0, 2.1, 0, g);
-      box(len + 0.04, 0.07, 0.36, C.cream, 0, 2.27, 0, g);
-      var n = Math.max(1, Math.round(len / 1.7)), pw = len / n, y0 = 0.45, y1 = 1.96;
-      for (var i = 0; i < n; i++) {
-        var cx = -len / 2 + pw * (i + 0.5), iw = pw - 0.3;
-        if (i > 0) box(0.3, y1 - y0, 0.3, C.wall, -len / 2 + pw * i, (y0 + y1) / 2, 0, g);
-        if (i === 0) box(0.15, y1 - y0, 0.3, C.wall, -len / 2 + 0.075, (y0 + y1) / 2, 0, g);
-        if (i === n - 1) box(0.15, y1 - y0, 0.3, C.wall, len / 2 - 0.075, (y0 + y1) / 2, 0, g);
-        // moulded frame
-        box(iw + 0.08, 0.05, 0.34, C.cream, cx, y1 - 0.02, 0, g);
-        box(iw + 0.08, 0.05, 0.34, C.cream, cx, y0 + 0.02, 0, g);
-        [-1, 1].forEach(function (sd) { box(0.05, y1 - y0, 0.34, C.cream, cx + sd * (iw / 2 + 0.02), (y0 + y1) / 2, 0, g); });
-        // lattice: square grid with a small square at every cell centre (breeze-block look)
-        var cell = 0.17, cols = Math.max(2, Math.round(iw / cell)), rows = Math.round((y1 - y0 - 0.1) / cell), cw = iw / cols, ch = (y1 - y0 - 0.1) / rows;
-        for (var c = 1; c < cols; c++) box(0.035, y1 - y0 - 0.1, 0.12, C.wall, cx - iw / 2 + cw * c, (y0 + y1) / 2, 0, g);
-        for (var r = 1; r < rows; r++) box(iw, 0.035, 0.12, C.wall, cx, y0 + 0.05 + ch * r, 0, g);
-        for (var c2 = 0; c2 < cols; c2++) for (var r2 = 0; r2 < rows; r2++) box(cw * 0.36, ch * 0.36, 0.1, C.wall, cx - iw / 2 + cw * (c2 + 0.5), y0 + 0.05 + ch * (r2 + 0.5), 0, g).castShadow = false;
+      box(len, 0.25, 0.34, C.wall, 0, 0.125, 0, g);
+      box(len, 0.45, 0.28, C.wall, 0, 0.475, 0, g);
+      box(len + 0.04, 0.06, 0.36, C.cream, 0, 0.73, 0, g);
+      var y0 = 0.76, y1 = 2.2;
+      for (var b = -len / 2 + 0.07; b <= len / 2 - 0.05; b += 0.12) {
+        box(0.028, y1 - y0, 0.028, C.black, b, (y0 + y1) / 2, 0, g);
+        box(0.034, 0.05, 0.034, C.gold, b, y1 + 0.04, 0, g).castShadow = false;
       }
+      box(len, 0.05, 0.05, C.black, 0, y0 + 0.03, 0, g);
+      box(len, 0.06, 0.06, C.black, 0, y1 - 0.03, 0, g);
+      box(len, 0.035, 0.045, C.gold, 0, y1 - 0.25, 0, g);
       after.add(g);
     }
     function pillar(x, z) {
