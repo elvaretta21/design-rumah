@@ -130,7 +130,7 @@ button[aria-pressed="true"] { background: var(--accent); color: var(--accent-fg)
     <details class="chip" id="note-after" open>
       <summary>Konsep klasik modern: putih, aksen hitam, sentuhan emas</summary>
       <ul>
-        <li><b>Depan:</b> teras gerbang lengkung, atap dak rata menyatu dengan carport, pintu charcoal 1½ daun dengan jendela kaca di kiri-kanan, jendela kisi berkanopi, tanpa pagar depan, atap perisai abu gelap</li>
+        <li><b>Depan:</b> teras gerbang lengkung, atap dak rata menyatu dengan carport, pintu charcoal 1½ daun dengan jendela kaca di kiri-kanan, jendela lengkung kisi hitam, pagar kisi charcoal hanya di depan taman dan sisi kanan, atap perisai abu gelap</li>
         <li><b>Kiri:</b> carport 2 mobil beratap dak, lantai motif catur lembut, jendela lengkung di dinding rumah, dinding lengkung berlampu</li>
         <li><b>Belakang kiri:</b> taman dengan dinding batu alam berlampu, kolam koi, dan dek kayu, terlihat dari pintu kaca dapur</li>
         <li><b>Interior:</b> 3 kamar, ruang tamu, ruang keluarga &amp; makan, dapur, kamar mandi. Tekan Interior untuk melihat, atau tombol orang untuk jalan-jalan di dalam rumah</li>
@@ -516,7 +516,7 @@ button[aria-pressed="true"] { background: var(--accent); color: var(--accent-fg)
 
     // Main house shell
     box(8.6, 0.45, 7.1, C.stoneBase, 0.75, 0.225, -0.5);
-    wallHoles('z', 2.9, -3.5, 5, 0, 3.6, 0.2, [[-2.0, -0.5, 1.0, 3.0], [1.3, 1.85, 0.75, 3.05], [2.15, 3.85, 0.45, 3.05], [4.15, 4.7, 0.75, 3.05]], C.wall);
+    wallHoles('z', 2.9, -3.5, 5, 0, 3.6, 0.2, [[-1.9, -0.6, 1.0, 3.1], [1.3, 1.85, 0.75, 3.05], [2.15, 3.85, 0.45, 3.05], [4.15, 4.7, 0.75, 3.05]], C.wall);
     box(2.9, 3.6, 0.2, C.wall, -2.05, 1.8, -3.9);
     box(4.4, 3.6, 0.2, C.wall, 2.8, 1.8, -3.9);
     box(1.2, 1.1, 0.2, C.wall, 0, 3.05, -3.9);
@@ -530,30 +530,19 @@ button[aria-pressed="true"] { background: var(--accent); color: var(--accent-fg)
     // Front window (photo 1): dark-grey double casement with grid, slim casing, white canopy with downlight,
     // classic lantern on the left, horizontal grooves on the facade, white planter below
     (function (x) {
-      var W = 1.5, Hh = 2.0, fc = 0x34383C;
-      // two casement leaves, each 2 x 4 panes with a shallow top row, chunky dark-grey frame
-      opening('front', 3.0, x, 1.0, W, Hh, { frame: fc, glass: glassAfter, fw: 0.14, cols: 4, rows: 4 });
-      box(0.08, Hh, 0.09, fc, x, 1.0 + Hh / 2, 3.12);
-      box(W, 0.07, 0.09, fc, x, 1.0 + Hh * 0.8, 3.12);
-      [-W / 2 + 0.02, W / 2 - 0.02].forEach(function (dx) { box(0.06, Hh, 0.09, fc, x + dx, 1.0 + Hh / 2, 3.12); });
-      // flat white surround and sill
-      box(W + 0.36, 0.1, 0.07, C.white, x, 1.0 + Hh + 0.1, 3.03);
-      box(W + 0.36, 0.08, 0.16, C.white, x, 0.93, 3.08);
-      [-1, 1].forEach(function (sd) { box(0.1, Hh + 0.2, 0.07, C.white, x + sd * (W / 2 + 0.13), 1.0 + Hh / 2, 3.03); });
-      // canopy hood with downlight
-      box(W + 0.7, 0.1, 0.6, C.white, x, 3.27, 3.3); box(W + 0.7, 0.16, 0.05, C.white, x, 3.25, 3.6);
-      cyl(0.06, 0.06, 0.02, lampMat, x, 3.21, 3.3, 12).castShadow = false;
+      var W = 1.3;
+      archWindow(x, 3.0, Math.PI, W, 1.45);
       // classic lantern on the left
-      var lx = x - W / 2 - 0.45;
+      var lx = x - W / 2 - 0.5;
       box(0.06, 0.06, 0.22, C.black, lx, 2.62, 3.12); box(0.08, 0.2, 0.04, C.black, lx, 2.62, 3.02);
       box(0.15, 0.24, 0.15, lampMat, lx, 2.42, 3.26);
       [[-1, -1], [1, -1], [-1, 1], [1, 1]].forEach(function (c) { box(0.02, 0.26, 0.02, C.black, lx + c[0] * 0.075, 2.42, 3.26 + c[1] * 0.075); });
       var capL = new THREE.Mesh(new THREE.ConeGeometry(0.13, 0.12, 4), mat(C.black)); capL.rotation.y = Math.PI / 4; capL.position.set(lx, 2.6, 3.26); add(capL);
       box(0.1, 0.04, 0.1, C.black, lx, 2.29, 3.26);
-      // horizontal grooves across the facade, split around the window surround
+      // horizontal grooves across the facade, split around the arched surround
       var l0 = -3.5, l1 = x - W / 2 - 0.18, r0 = x + W / 2 + 0.18, r1 = 1.0;
       for (var gy = 0.75; gy < 3.15; gy += 0.3) {
-        if (gy > 0.88 && gy < 3.12) { box(l1 - l0, 0.014, 0.012, 0xA89A86, (l0 + l1) / 2, gy, 3.004); box(r1 - r0, 0.014, 0.012, 0xA89A86, (r0 + r1) / 2, gy, 3.004); }
+        if (gy > 0.86) { box(l1 - l0, 0.014, 0.012, 0xA89A86, (l0 + l1) / 2, gy, 3.004); box(r1 - r0, 0.014, 0.012, 0xA89A86, (r0 + r1) / 2, gy, 3.004); }
         else box(r1 - l0, 0.014, 0.012, 0xA89A86, (l0 + r1) / 2, gy, 3.004);
       }
     })(-1.25);
@@ -618,14 +607,15 @@ button[aria-pressed="true"] { background: var(--accent); color: var(--accent-fg)
     // Left side door to carport
     opening('left', -3.5, -1.2, 0.45, 1.0, 2.3, { frame: C.black, glass: 'none' });
     leaf(-3.35, -1.7, 1.0, 2.28, 0.46, -Math.PI / 2 + 1.2, C.black, C.gold);
-    (function () {
-      var W = 1.1, R = W / 2, SH = 1.5, FC = 0x1E2023;
-      var g = new THREE.Group(); g.position.set(-3.5, 1.0, 1.5); g.rotation.y = Math.PI / 2; after.add(g);
+    // Arched casement window (picture 2). (px, pz) = outer wall face, ry turns local -z to face outward.
+    function archWindow(px, pz, ry, W, SH) {
+      var R = W / 2, FC = 0x1E2023;
+      var g = new THREE.Group(); g.position.set(px, 1.0, pz); g.rotation.y = ry; after.add(g);
       function archShape(w, sh, y0) { var r = w / 2, sp = new THREE.Shape(); sp.moveTo(-r, y0); sp.lineTo(r, y0); sp.lineTo(r, sh); sp.absarc(0, sh, r, 0, Math.PI, false); sp.lineTo(-r, y0); return sp; }
       function archHole(w, sh, y0) { var r = w / 2, hp = new THREE.Path(); hp.moveTo(-r, y0); hp.lineTo(r, y0); hp.lineTo(r, sh); hp.absarc(0, sh, r, 0, Math.PI, false); hp.lineTo(-r, y0); return hp; }
       function ext(shape, depth, c, z) { var m = new THREE.Mesh(new THREE.ExtrudeGeometry(shape, { depth: depth, bevelEnabled: false, curveSegments: 28 }), M(c)); m.position.z = z; add(m, g); return m; }
       // wall infill above the arch (spandrels)
-      var sp = new THREE.Shape(); sp.moveTo(-R, SH); sp.lineTo(-R, 2.05); sp.lineTo(R, 2.05); sp.lineTo(R, SH); sp.absarc(0, SH, R, 0, Math.PI, false);
+      var sp = new THREE.Shape(); sp.moveTo(-R, SH); sp.lineTo(-R, SH + R); sp.lineTo(R, SH + R); sp.lineTo(R, SH); sp.absarc(0, SH, R, 0, Math.PI, false);
       ext(sp, 0.2, C.wall, 0);
       // deep white arched surround
       var sr2 = archShape(W + 0.32, SH, -0.12); sr2.holes.push(archHole(W, SH, 0)); ext(sr2, 0.08, C.white, -0.08);
@@ -635,16 +625,17 @@ button[aria-pressed="true"] { background: var(--accent); color: var(--accent-fg)
       var gl = new THREE.Mesh(new THREE.ExtrudeGeometry(archShape(W - 0.1, SH, 0.05), { depth: 0.01, bevelEnabled: false, curveSegments: 28 }), glassAfter); gl.position.z = 0.07; g.add(gl);
       // two casements: centre stile, side stiles, 4 rows of panes
       box(0.06, SH, 0.05, FC, 0, SH / 2, 0.04, g);
-      [-0.275, 0.275].forEach(function (x) { box(0.025, SH - 0.05, 0.035, FC, x, SH / 2, 0.05, g); });
-      [0.4, 0.78, 1.15].forEach(function (y) { box(W - 0.1, 0.025, 0.035, FC, 0, y, 0.05, g); });
+      [-W / 4, W / 4].forEach(function (x) { box(0.025, SH - 0.05, 0.035, FC, x, SH / 2, 0.05, g); });
+      [SH * 0.27, SH * 0.52, SH * 0.77].forEach(function (y) { box(W - 0.1, 0.025, 0.035, FC, 0, y, 0.05, g); });
       box(W - 0.08, 0.05, 0.05, FC, 0, SH, 0.04, g);
       // fan muntins in the arch + small inner half ring
       [30, 60, 90, 120, 150].forEach(function (deg) {
         var a = deg * Math.PI / 180, L = R - 0.05;
         var bar = box(0.022, L, 0.035, FC, Math.cos(a) * L / 2, SH + Math.sin(a) * L / 2, 0.05, g); bar.rotation.z = a - Math.PI / 2;
       });
-      var ring = new THREE.Mesh(new THREE.TorusGeometry(0.2, 0.014, 6, 24, Math.PI), M(FC)); ring.position.set(0, SH, 0.05); add(ring, g);
-    })();
+      var ring = new THREE.Mesh(new THREE.TorusGeometry(R * 0.36, 0.014, 6, 24, Math.PI), M(FC)); ring.position.set(0, SH, 0.05); add(ring, g);
+    }
+    archWindow(-3.5, 1.5, Math.PI / 2, 1.1, 1.5);
 
     // Main hip roof
     G = roofsAfter;
@@ -760,6 +751,11 @@ button[aria-pressed="true"] { background: var(--accent); color: var(--accent-fg)
       box(0.06, h, 0.06, SL, -w / 2 + 0.03, h / 2, 0, parent); box(0.06, h, 0.06, SL, w / 2 - 0.03, h / 2, 0, parent);
       var g2 = new THREE.Group(); parent.add(g2); slats(w - 0.12, 0.06, h - 0.06, g2, 0.085);
     }
+    // Fence only along the front of the garden and down the right-hand side (no fence at the entry path or carport)
+    pillar(-3.2, 10.4); pillar(1.75, 10.4);
+    fenceRun('z', -2.97, 1.52, 10.4);
+    pillar(5.4, 3.1); pillar(5.4, 10.4);
+    fenceRun('x', 3.33, 10.17, 5.4);
     // ---------- Front garden ----------
     var seed = 7; function sr() { seed = (seed * 16807) % 2147483647; return (seed - 1) / 2147483646; }
     function shrub(x, z, r, c, flower) { bush(x, 0, z, r, flower, r < 0.36 ? 'fine' : null); }
