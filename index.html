@@ -130,8 +130,8 @@ button[aria-pressed="true"] { background: var(--accent); color: var(--accent-fg)
     <details class="chip" id="note-after" open>
       <summary>Konsep klasik modern: putih, aksen hitam, sentuhan emas</summary>
       <ul>
-        <li><b>Depan:</b> teras gerbang lengkung, atap dak rata menyatu dengan carport, pintu charcoal 1½ daun dengan jendela kaca di kiri-kanan, jendela lengkung kisi hitam, pagar kisi charcoal hanya di depan taman dan sisi kanan, atap perisai abu gelap</li>
-        <li><b>Kiri:</b> carport 2 mobil beratap dak, lantai motif catur lembut, jendela lengkung di dinding rumah, dinding lengkung berlampu</li>
+        <li><b>Depan:</b> teras gerbang lengkung, atap dak rata menyatu dengan carport, pintu charcoal 1½ daun dengan jendela kaca polos di kiri-kanan, jendela lengkung kisi hitam dengan lampu dinding up-down, pagar kisi charcoal rendah hanya di depan taman dan sisi kanan, atap perisai abu gelap</li>
+        <li><b>Kiri:</b> carport 2 mobil beratap dak, lantai motif catur lembut, jendela kotak di dinding rumah, dinding lengkung berlampu</li>
         <li><b>Belakang kiri:</b> taman dengan dinding batu alam berlampu, kolam koi, dan dek kayu, terlihat dari pintu kaca dapur</li>
         <li><b>Interior:</b> 3 kamar, ruang tamu, ruang keluarga &amp; makan, dapur, kamar mandi. Tekan Interior untuk melihat, atau tombol orang untuk jalan-jalan di dalam rumah</li>
       </ul>
@@ -427,6 +427,37 @@ button[aria-pressed="true"] { background: var(--accent); color: var(--accent-fg)
     return add(m);
   }
 
+  /* ---------------- Up/down wall light with light-beam glow ---------------- */
+  var beamMats = [];
+  var beamTex = (function () {
+    var cv = document.createElement('canvas'); cv.width = 256; cv.height = 512; var g = cv.getContext('2d');
+    g.globalCompositeOperation = 'lighter';
+    [-1, 1].forEach(function (dir) {
+      for (var i = 0; i < 9; i++) {
+        var a = (-0.42 + i * 0.105) + (Math.random() - 0.5) * 0.03, L = 200 + Math.random() * 40, w = 0.035;
+        var gr = g.createLinearGradient(128, 256, 128 + Math.sin(a) * L, 256 + dir * Math.cos(a) * L);
+        gr.addColorStop(0, 'rgba(255,200,120,0.55)'); gr.addColorStop(0.35, 'rgba(255,185,100,0.22)'); gr.addColorStop(1, 'rgba(255,170,80,0)');
+        g.fillStyle = gr; g.beginPath(); g.moveTo(128 + Math.sin(a) * 6, 256);
+        g.lineTo(128 + Math.sin(a - w) * L, 256 + dir * Math.cos(a - w) * L); g.lineTo(128 + Math.sin(a + w) * L, 256 + dir * Math.cos(a + w) * L); g.closePath(); g.fill();
+      }
+      var rg = g.createRadialGradient(128, 256, 0, 128, 256 + dir * 60, 150);
+      rg.addColorStop(0, 'rgba(255,190,110,0.35)'); rg.addColorStop(1, 'rgba(255,190,110,0)');
+      g.fillStyle = rg; g.fillRect(0, dir < 0 ? 0 : 256, 256, 256);
+    });
+    var t = new THREE.CanvasTexture(cv); t.encoding = THREE.sRGBEncoding; return t;
+  })();
+  // (x, y, z) = point on the wall face; ry turns the lamp so local +z faces outward
+  function updownLight(x, y, z, ry, beamW, beamH, parent) {
+    var g = new THREE.Group(); g.position.set(x, y, z); g.rotation.y = ry; (parent || G).add(g);
+    box(0.2, 0.075, 0.07, 0x18191B, 0, 0, 0.035, g);
+    box(0.17, 0.008, 0.05, lampMat, 0, 0.041, 0.035, g).castShadow = false;
+    box(0.17, 0.008, 0.05, lampMat, 0, -0.041, 0.035, g).castShadow = false;
+    var bm = new THREE.MeshBasicMaterial({ map: beamTex, transparent: true, blending: THREE.AdditiveBlending, depthWrite: false, opacity: 0.12, toneMapped: false });
+    beamMats.push(bm);
+    var pl = new THREE.Mesh(new THREE.PlaneGeometry(beamW || 0.45, beamH || 1.5), bm); pl.position.z = 0.006; pl.renderOrder = 3; g.add(pl);
+    return g;
+  }
+
   /* ---------------- BEFORE: as filmed ---------------- */
   var before = new THREE.Group(); scene.add(before);
   var roofsBefore = new THREE.Group(); before.add(roofsBefore);
@@ -520,7 +551,7 @@ button[aria-pressed="true"] { background: var(--accent); color: var(--accent-fg)
     box(2.9, 3.6, 0.2, C.wall, -2.05, 1.8, -3.9);
     box(4.4, 3.6, 0.2, C.wall, 2.8, 1.8, -3.9);
     box(1.2, 1.1, 0.2, C.wall, 0, 3.05, -3.9);
-    wallHoles('x', -3.4, -4, 3, 0, 3.6, 0.2, [[-1.7, -0.7, 0.45, 2.75], [0.95, 2.05, 1.0, 3.05]], C.wall);
+    wallHoles('x', -3.4, -4, 3, 0, 3.6, 0.2, [[-1.7, -0.7, 0.45, 2.75], [0.95, 2.05, 1.0, 2.9]], C.wall);
     box(0.2, 3.6, 7, C.wall, 4.9, 1.8, -0.5);
     box(8.5, 0.1, 7, 0xE4E1DB, 0.75, 0.45, -0.5);
     ring(8.9, 7.4, 0.25, 3.72, 0.45, C.cream, 0.75, -0.5);
@@ -532,13 +563,9 @@ button[aria-pressed="true"] { background: var(--accent); color: var(--accent-fg)
     (function (x) {
       var W = 1.3;
       archWindow(x, 3.0, Math.PI, W, 1.45);
-      // classic lantern on the left
+      // up/down wall light on the left of the window
       var lx = x - W / 2 - 0.5;
-      box(0.06, 0.06, 0.22, C.black, lx, 2.62, 3.12); box(0.08, 0.2, 0.04, C.black, lx, 2.62, 3.02);
-      box(0.15, 0.24, 0.15, lampMat, lx, 2.42, 3.26);
-      [[-1, -1], [1, -1], [-1, 1], [1, 1]].forEach(function (c) { box(0.02, 0.26, 0.02, C.black, lx + c[0] * 0.075, 2.42, 3.26 + c[1] * 0.075); });
-      var capL = new THREE.Mesh(new THREE.ConeGeometry(0.13, 0.12, 4), mat(C.black)); capL.rotation.y = Math.PI / 4; capL.position.set(lx, 2.6, 3.26); add(capL);
-      box(0.1, 0.04, 0.1, C.black, lx, 2.29, 3.26);
+      updownLight(lx, 2.25, 3.0, 0, 0.5, 1.7);
       // horizontal grooves across the facade, split around the arched surround
       var l0 = -3.5, l1 = x - W / 2 - 0.18, r0 = x + W / 2 + 0.18, r1 = 1.0;
       for (var gy = 0.75; gy < 3.15; gy += 0.3) {
@@ -600,7 +627,7 @@ button[aria-pressed="true"] { background: var(--accent); color: var(--accent-fg)
     })();
     // Tall sidelight windows either side of the door
     [1.575, 4.425].forEach(function (wx) {
-      opening('front', 3.0, wx, 0.75, 0.55, 2.3, { frame: 0x2B2E32, glass: glassAfter, fw: 0.1, cols: 1, rows: 4 });
+      opening('front', 3.0, wx, 0.75, 0.55, 2.3, { frame: 0x2B2E32, glass: glassAfter, fw: 0.1, cols: 1, rows: 1 });
     });
     box(2.3, 0.18, 0.16, C.cream, 3, 3.25, 3.1);
 
@@ -635,7 +662,10 @@ button[aria-pressed="true"] { background: var(--accent); color: var(--accent-fg)
       });
       var ring = new THREE.Mesh(new THREE.TorusGeometry(R * 0.36, 0.014, 6, 24, Math.PI), M(FC)); ring.position.set(0, SH, 0.05); add(ring, g);
     }
-    archWindow(-3.5, 1.5, Math.PI / 2, 1.1, 1.5);
+    // carport-side window: plain rectangular casement with a white surround
+    opening('left', -3.5, 1.5, 1.0, 1.1, 1.9, { frame: 0x1E2023, glass: glassAfter, fw: 0.1, cols: 2, rows: 1 });
+    box(0.06, 0.1, 1.42, C.white, -3.53, 3.0, 1.5); box(0.12, 0.08, 1.42, C.white, -3.56, 0.92, 1.5);
+    [0.79, 2.21].forEach(function (zz) { box(0.06, 2.1, 0.1, C.white, -3.53, 1.95, zz); });
 
     // Main hip roof
     G = roofsAfter;
@@ -715,21 +745,15 @@ button[aria-pressed="true"] { background: var(--accent); color: var(--accent-fg)
       if (axis === 'x') g.rotation.y = Math.PI / 2;
       box(len, 0.6, 0.26, C.wall, 0, 0.3, 0, g);
       box(len + 0.02, 0.04, 0.3, C.white, 0, 0.62, 0, g);
-      slats(len, 0.64, 2.2, g);
+      slats(len, 0.64, 1.6, g);
       after.add(g);
     }
     function pillar(x, z) {
-      box(0.46, 2.4, 0.46, C.wall, x, 1.2, z);
-      box(0.5, 0.05, 0.5, C.white, x, 2.425, z);
-      // vertical LED strip on the street face
-      box(0.035, 1.5, 0.02, lampMat, x, 1.35, z + 0.235).castShadow = false;
-      box(0.07, 1.56, 0.012, SL, x, 1.35, z + 0.231);
-      // decorative post-top lamp: black base, frosted glass cylinder, black cap
-      box(0.22, 0.05, 0.22, SL, x, 2.475, z);
-      cyl(0.075, 0.075, 0.24, lampMat, x, 2.62, z, 20).castShadow = false;
-      [[-1, -1], [1, -1], [-1, 1], [1, 1]].forEach(function (c) { box(0.015, 0.24, 0.015, SL, x + c[0] * 0.07, 2.62, z + c[1] * 0.07); });
-      box(0.22, 0.04, 0.22, SL, x, 2.76, z); box(0.08, 0.03, 0.08, SL, x, 2.795, z);
-      var pl = new THREE.PointLight(0xFFC98A, 0, 4, 2); pl.position.set(x, 2.62, z); after.add(pl); nightLights.push(pl);
+      box(0.46, 1.8, 0.46, C.wall, x, 0.9, z);
+      box(0.5, 0.05, 0.5, C.white, x, 1.825, z);
+      // up/down wall light on the street face
+      updownLight(x, 1.15, z + 0.23, 0, 0.42, 1.3, after);
+      var pl = new THREE.PointLight(0xFFC98A, 0, 3.5, 2); pl.position.set(x, 1.15, z + 0.5); after.add(pl); nightLights.push(pl);
     }
     // Laser-cut ornamental panel texture (black with transparent scroll cut-outs)
     var orn = (function () {
@@ -1241,6 +1265,7 @@ button[aria-pressed="true"] { background: var(--accent); color: var(--accent-fg)
     scene.environment = state.night ? null : envTex;
     renderer.toneMappingExposure = state.night ? 1.25 : 0.72;
     lampMat.emissiveIntensity = state.night ? 3.0 : 0.15;
+    beamMats.forEach(function (m) { m.opacity = state.night ? 1.0 : 0.1; });
     glassAfter.emissiveIntensity = state.night ? 0.12 : 0;
     nightLights.forEach(function (l) { l.intensity = state.night ? 2.6 : 0; });
     roomLights.forEach(function (l) { l.intensity = state.night ? 1.8 : 0.5; });
