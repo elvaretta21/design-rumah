@@ -109,6 +109,7 @@ button[aria-pressed="true"] { background: var(--accent); color: var(--accent-fg)
     <button id="v-right" type="button" data-view="right" aria-pressed="false">Kanan</button>
     <button id="v-back" type="button" data-view="back" aria-pressed="false">Belakang</button>
     <button id="v-top" type="button" data-view="top" aria-pressed="false">Atas</button>
+    <button id="v-garden" type="button" data-view="garden" aria-pressed="false">Taman</button>
     <button id="v-car" type="button" data-view="car" aria-pressed="false">Carport</button>
     <button id="v-koi" type="button" data-view="koi" aria-pressed="false">Taman Koi</button>
   </div>
@@ -789,7 +790,84 @@ button[aria-pressed="true"] { background: var(--accent); color: var(--accent-fg)
     // ---------- Front garden ----------
     var seed = 7; function sr() { seed = (seed * 16807) % 2147483647; return (seed - 1) / 2147483646; }
     function shrub(x, z, r, c, flower) { bush(x, 0, z, r, flower, r < 0.36 ? 'fine' : null); }
-    // Frangipani (kamboja) tree with white blossoms
+    // ---------- Garden layout: back hedge bed, sansevieria border, frangipani island, fountain, front flower bed ----------
+    var beds = [];   // grass is kept out of these
+    function inBed(x, z) {
+      for (var i = 0; i < beds.length; i++) {
+        var b = beds[i];
+        if (b.r ? ((x - b.x) * (x - b.x) + (z - b.z) * (z - b.z) < b.r * b.r) : (x > b.x0 && x < b.x1 && z > b.z0 && z < b.z1)) return true;
+      }
+      return false;
+    }
+    var SOIL = 0x3E3127;
+    function bedRect(x0, x1, z0, z1) { beds.push({ x0: x0, x1: x1, z0: z0, z1: z1 }); var m = box(x1 - x0, 0.08, z1 - z0, SOIL, (x0 + x1) / 2, 0.04, (z0 + z1) / 2); m.castShadow = false; }
+    // leaf-card textures made here: red-tipped "pucuk merah" and striped sansevieria blades
+    function cardTex(w, h, draw) { var cv = document.createElement('canvas'); cv.width = w; cv.height = h; draw(cv.getContext('2d'), w, h); var t = new THREE.CanvasTexture(cv); t.encoding = THREE.sRGBEncoding; return t; }
+    var redTex = cardTex(256, 256, function (g, s) {
+      for (var i = 0; i < 340; i++) {
+        var r = Math.sqrt(sr()) * s * 0.44, a = sr() * 6.283, t = r / (s * 0.44);
+        var col = t > 0.62 && sr() < 0.8 ? 'hsl(' + (2 + sr() * 14) + ',' + (55 + sr() * 20) + '%,' + (32 + sr() * 14) + '%)' : 'hsl(' + (95 + sr() * 25) + ',' + (35 + sr() * 15) + '%,' + (16 + sr() * 14) + '%)';
+        g.save(); g.translate(s / 2 + Math.cos(a) * r, s / 2 + Math.sin(a) * r); g.rotate(sr() * 6.283); g.fillStyle = col;
+        var len = 11 + sr() * 9, wd = 4 + sr() * 3; g.beginPath(); g.moveTo(0, 0); g.quadraticCurveTo(wd, len * 0.45, 0, len); g.quadraticCurveTo(-wd, len * 0.45, 0, 0); g.fill(); g.restore();
+      }
+    });
+    var redMat = new THREE.MeshStandardMaterial({ map: redTex, alphaTest: 0.5, side: THREE.DoubleSide, roughness: 0.6 });
+    var redDepth = new THREE.MeshDepthMaterial({ depthPacking: THREE.RGBADepthPacking, map: redTex, alphaTest: 0.5 });
+    var swordTex = cardTex(64, 512, function (g, w, h) {
+      g.beginPath(); g.moveTo(w / 2, 0); g.quadraticCurveTo(w * 0.98, h * 0.35, w * 0.9, h); g.lineTo(w * 0.1, h); g.quadraticCurveTo(w * 0.02, h * 0.35, w / 2, 0); g.closePath();
+      g.save(); g.clip();
+      g.fillStyle = '#2F5A2A'; g.fillRect(0, 0, w, h);
+      for (var y = 0; y < h; y += 9 + sr() * 8) { g.fillStyle = 'rgba(160,190,120,' + (0.25 + sr() * 0.25) + ')'; g.fillRect(0, y, w, 3 + sr() * 3); }
+      g.fillStyle = '#D8C24A'; g.fillRect(0, 0, w * 0.16, h); g.fillRect(w * 0.84, 0, w * 0.16, h);
+      g.restore();
+    });
+    var swordMat = new THREE.MeshStandardMaterial({ map: swordTex, alphaTest: 0.5, side: THREE.DoubleSide, roughness: 0.55 });
+    var swordDepth = new THREE.MeshDepthMaterial({ depthPacking: THREE.RGBADepthPacking, map: swordTex, alphaTest: 0.5 });
+    function redBush(x, y, z, r) {
+      var g = new THREE.Group(); g.position.set(x, y, z);
+      for (var i = 0; i < Math.round(r * 24); i++) {
+        var m = new THREE.Mesh(cardGeo, redMat); m.customDepthMaterial = redDepth;
+        var a = sr() * 6.283, rr = sr() * r * 0.5;
+        m.position.set(Math.cos(a) * rr, r * (0.45 + sr() * 0.8), Math.sin(a) * rr);
+        m.rotation.set(sr() * 3.14, sr() * 3.14, sr() * 3.14); var sc = r * (1 + sr() * 0.5); m.scale.set(sc, sc, sc);
+        m.castShadow = true; m.receiveShadow = true; g.add(m);
+      }
+      after.add(g);
+    }
+    function sansevieria(x, z, s) {
+      for (var i = 0; i < 9; i++) {
+        var H = (0.55 + sr() * 0.35) * s, m = new THREE.Mesh(cardGeo, swordMat); m.customDepthMaterial = swordDepth;
+        m.scale.set(0.085 * s, H, 1);
+        m.rotation.order = 'YXZ'; m.rotation.set((sr() - 0.5) * 0.35, sr() * 3.14, (sr() - 0.5) * 0.35);
+        m.position.set(x + (sr() - 0.5) * 0.18 * s, 0.08 + H / 2, z + (sr() - 0.5) * 0.18 * s);
+        m.castShadow = true; after.add(m);
+      }
+    }
+    function liliParis(x, z) {
+      for (var i = 0; i < 16; i++) {
+        var a = i / 16 * 6.283 + sr() * 0.3, bl = box(0.018, 0.34, 0.006, i % 2 ? 0xB9D88C : 0x6E9B47, x + Math.cos(a) * 0.06, 0.2, z + Math.sin(a) * 0.06);
+        bl.rotation.order = 'YXZ'; bl.rotation.set(0.9 + sr() * 0.3, -a + Math.PI / 2, 0); bl.castShadow = false;
+      }
+    }
+
+    // Back bed: red-tipped hedge (pucuk merah) behind the fence slats
+    bedRect(-3.35, 1.85, 9.45, 10.2);
+    for (var hx = -3.0; hx <= 1.6; hx += 0.4) redBush(hx, 0.05, 9.82, 0.36);
+    // Left border along the carport: row of sansevieria
+    bedRect(-3.4, -2.85, 4.95, 9.4);
+    for (var sz2 = 5.25; sz2 <= 9.15; sz2 += 0.5) sansevieria(-3.12, sz2, 1.0 + sr() * 0.25);
+    // Front bed along the terrace: ixora, bougainvillea and spider plants, low and layered
+    bedRect(-2.8, 1.85, 4.88, 5.45);
+    [[-2.45, 'ixora'], [-1.95, 'lili'], [-1.45, 'bougain'], [-0.85, 'lili'], [-0.35, 'ixora'], [0.2, 'lili'], [0.75, 'bougain'], [1.4, 'ixora']].forEach(function (p) {
+      if (p[1] === 'lili') liliParis(p[0], 5.17);
+      else if (p[1] === 'ixora') bush(p[0], 0.06, 5.17, 0.24, 0xE8502A, 'fine');
+      else bush(p[0], 0.06, 5.17, 0.32, 0xD63384, 'fine');
+    });
+    // Frangipani island: white pebbles inside a ring of natural edge stones, with an uplight
+    var IX = -1.55, IZ = 7.95, IR = 1.0;
+    beds.push({ x: IX, z: IZ, r: IR + 0.05 });
+    var peb = cyl(IR, IR, 0.06, 0xE4E0D8, IX, 0.05, IZ, 32); peb.castShadow = false;
+    for (var k = 0; k < 18; k++) { var ang = k / 18 * 6.283; rock(IX + Math.cos(ang) * IR, IZ + Math.sin(ang) * IR, 0.13 + sr() * 0.04, 0.6); }
     (function (x, z) {
       cyl(0.09, 0.14, 1.3, 0x7D6E5E, x, 0.65, z, 10);
       [[0.6, 0.5, 0.2], [-0.5, 0.4, 0.4], [0.1, 0.55, -0.6], [-0.2, 0.6, 0.1]].forEach(function (b) {
@@ -798,24 +876,33 @@ button[aria-pressed="true"] { background: var(--accent); color: var(--accent-fg)
         br.lookAt(x + b[0], 1.3 + b[1], z + b[2]); br.rotateX(Math.PI / 2);
         bush(x + b[0], 1.05 + b[1], z + b[2], 0.55, 0xFBF6E6);
       });
-    })(-2.3, 8.4);
-    // Flowering shrubs, ornamental grass, boulders
-    shrub(-3.0, 5.5, 0.45, 0x4A7B37, 0xD9467A); shrub(0.9, 5.4, 0.4, 0x4A7B37, 0xF0C33C);
-    shrub(1.2, 7.4, 0.35, 0x5A8A3E, 0xE86A33); shrub(-1.2, 9.6, 0.35, 0x4A7B37, 0xD9467A);
-    shrub(4.7, 7.6, 0.32, 0x4A7B37, 0xF4F1EA);
-    [[-0.4, 7.4], [-2.0, 5.9], [1.4, 9.0]].forEach(function (p) {
-      for (var b2 = 0; b2 < 14; b2++) {
-        var bl = box(0.02, 0.55 + sr() * 0.35, 0.05, 0x7E8F4A, p[0] + (sr() - 0.5) * 0.25, 0.35, p[1] + (sr() - 0.5) * 0.25);
-        bl.rotation.set((sr() - 0.5) * 0.7, sr() * 3, (sr() - 0.5) * 0.7); bl.castShadow = false;
-      }
-    });
-    rock(-1.0, 6.3, 0.38); rock(-0.5, 6.65, 0.24, 0.7); rock(-2.6, 9.4, 0.3); rock(0.6, 9.8, 0.2, 0.8);
-    // Mulch beds under the shrubs
-    [[-3.0, 5.5, 0.75], [0.9, 5.4, 0.6], [-2.3, 8.4, 1.0]].forEach(function (m) { var mb = cyl(m[2], m[2], 0.03, 0x4A3B2E, m[0], 0.045, m[1], 24); mb.castShadow = false; });
+    })(IX, IZ);
+    liliParis(IX + 0.55, IZ - 0.45); liliParis(IX - 0.6, IZ + 0.35); bush(IX + 0.35, 0.06, IZ + 0.55, 0.22, 0xF4F1EA, 'fine');
+    rock(IX - 0.45, IZ - 0.5, 0.2, 0.7);
+    cyl(0.05, 0.06, 0.12, C.black, IX + 0.75, 0.1, IZ - 0.2, 12); cyl(0.04, 0.04, 0.01, lampMat, IX + 0.75, 0.165, IZ - 0.2, 12).castShadow = false;
+    var up = new THREE.SpotLight(0xFFD29A, 0, 5, 0.5, 0.6, 2); up.position.set(IX + 0.75, 0.2, IZ - 0.2); up.target.position.set(IX, 2.2, IZ); after.add(up); after.add(up.target); nightLights.push(up);
+    // Two-tier stone fountain with stepping stones from the entry path
+    (function (x, z) {
+      var ST = 0xA29C92;
+      beds.push({ x: x, z: z, r: 0.62 });
+      cyl(0.28, 0.34, 0.45, ST, x, 0.225, z, 24);
+      cyl(0.58, 0.36, 0.18, ST, x, 0.54, z, 32); cyl(0.6, 0.6, 0.04, 0xB7B1A6, x, 0.64, z, 32);
+      var w1 = new THREE.Mesh(new THREE.CylinderGeometry(0.5, 0.5, 0.02, 32), waterMat); w1.position.set(x, 0.62, z); after.add(w1);
+      cyl(0.07, 0.09, 0.36, ST, x, 0.82, z, 16);
+      cyl(0.26, 0.14, 0.09, ST, x, 1.03, z, 24);
+      var w2 = new THREE.Mesh(new THREE.CylinderGeometry(0.21, 0.21, 0.015, 24), waterMat); w2.position.set(x, 1.07, z); after.add(w2);
+      cyl(0.035, 0.05, 0.14, ST, x, 1.13, z, 10);
+      // falling water sheets
+      var fall = new THREE.MeshStandardMaterial({ color: 0xDCE8EE, transparent: true, opacity: 0.45, roughness: 0.1, depthWrite: false });
+      var sheet = new THREE.Mesh(new THREE.CylinderGeometry(0.27, 0.34, 0.4, 24, 1, true), fall); sheet.position.set(x, 0.84, z); after.add(sheet);
+    })(0.75, 7.1);
+    [[1.62, 7.05], [-0.15, 7.45], [-0.55, 9.0], [0.2, 8.75]].forEach(function (p) { var st = cyl(0.2, 0.21, 0.05, 0xBDB7AD, p[0], 0.045, p[1], 18); st.rotation.y = sr() * 3; });
+    rock(0.9, 9.0, 0.24); rock(-2.4, 6.0, 0.26); rock(1.5, 5.95, 0.16, 0.7);
+    shrub(4.7, 7.6, 0.32, 0x4A7B37, 0xF4F1EA); sansevieria(4.7, 9.4, 1.1);
     // Steel lawn edging + low garden bollard lights
     box(5.3, 0.08, 0.04, C.black, -0.75, 0.04, 4.84);
     box(0.04, 0.08, 5.55, C.black, 1.9, 0.04, 7.62);
-    [[1.75, 7.6], [1.75, 9.6], [4.2, 7.6], [4.2, 9.6], [-3.2, 6.2]].forEach(function (p) {
+    [[1.75, 7.9], [1.75, 9.6], [4.2, 7.6], [4.2, 9.6]].forEach(function (p) {
       box(0.1, 0.55, 0.1, C.black, p[0], 0.28, p[1]); box(0.08, 0.06, 0.08, lampMat, p[0], 0.5, p[1]);
     });
 
@@ -840,7 +927,7 @@ button[aria-pressed="true"] { background: var(--accent); color: var(--accent-fg)
       for (var i = 0; i < n; i++) {
         d.position.set(-3.35 + Math.random() * 5.2, 0.03, 4.9 + Math.random() * 5.3);
         d.rotation.set((Math.random() - 0.5) * 0.9, Math.random() * 6.28, (Math.random() - 0.5) * 0.9);
-        var s = 0.5 + Math.random() * 0.9; d.scale.set(s, s, s); d.updateMatrix();
+        var s = inBed(d.position.x, d.position.z) ? 0.0001 : 0.5 + Math.random() * 0.9; d.scale.set(s, s, s); d.updateMatrix();
         im.setMatrixAt(i, d.matrix);
         im.setColorAt(i, col.setHSL(0.2 + Math.random() * 0.08, 0.35 + Math.random() * 0.2, 0.18 + Math.random() * 0.16).convertSRGBToLinear());
       }
@@ -1227,8 +1314,7 @@ button[aria-pressed="true"] { background: var(--accent); color: var(--accent-fg)
     iso: { p: [13, 9.5, 18.5], t: [-1, 1.4, 0] }, in: { p: [9, 15, 9], t: [0, 0.5, -2.8] }, front: { p: [0.6, 3.2, 17.5], t: [-1.2, 2.0, 2] },
     left: { p: [-18, 11, 5], t: [-4, 1.2, 0] }, right: { p: [17, 11, 4], t: [2, 1.2, -1] },
     back: { p: [-4, 8, -29], t: [0, 1.6, -3] }, top: { p: [0.1, 38, 1.4], t: [0, 0, 1] },
-    car: { p: [-6.65, 1.9, 9.6], t: [-6.65, 1.3, -2] }, garden: { p: [5.6, 2.0, 2.3], t: [9.2, 1.2, -2.2] },
-    koi: { p: [-4.6, 2.6, -4.2], t: [-9.0, 0.6, -8.4] }
+    garden: { p: [1.4, 3.4, 12.6], t: [-0.9, 0.4, 7.4] }, car: { p: [-6.65, 1.9, 9.6], t: [-6.65, 1.3, -2] }, koi: { p: [-4.6, 2.6, -4.2], t: [-9.0, 0.6, -8.4] }
   };
   var anim = null;
   function goTo(name) {
@@ -1259,7 +1345,7 @@ button[aria-pressed="true"] { background: var(--accent); color: var(--accent-fg)
     bNight.setAttribute('aria-pressed', String(state.night));
     document.getElementById('note-after').hidden = state.mode !== 'after';
     document.getElementById('note-before').hidden = state.mode !== 'before';
-    ['koi', 'car'].forEach(function (k) { document.querySelector('[data-view="' + k + '"]').hidden = state.mode !== 'after'; });
+    ['koi', 'car', 'garden'].forEach(function (k) { document.querySelector('[data-view="' + k + '"]').hidden = state.mode !== 'after'; });
     sun.intensity = state.night ? 0.04 : 1.9;
     hemi.intensity = state.night ? 0.08 : 0.22;
     scene.environment = state.night ? null : envTex;
